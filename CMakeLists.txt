@@ -30,7 +30,7 @@ endif ()
 if (PROJECT_IS_TOP_LEVEL)
     option(BUILD_EXAMPLES "Build examples tree." "${dawn_DEVELOPER_MODE}")
     if (BUILD_EXAMPLES)
-        add_subdirectory(example)
+        add_subdirectory(examples)
     endif ()
 endif ()
 
