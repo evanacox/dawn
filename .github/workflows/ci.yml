@@ -114,7 +114,7 @@ jobs:
         run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
 
       - name: Build
-        run: cmake --build build --config Release -j 2 -DDAWN_ENABLE_TESTS=ON
+        run: cmake --build build --config Release -j 2
 
       - name: Test
         working-directory: build
