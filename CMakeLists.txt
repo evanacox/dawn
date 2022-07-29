@@ -1,0 +1,70 @@
+cmake_minimum_required(VERSION 3.14)
+
+include(cmake/prelude.cmake)
+
+project(
+        dawn
+        VERSION 0.1.0
+        DESCRIPTION "A scrappy compiler middle and back-end library"
+        HOMEPAGE_URL "https://github.com/evanacox/dawn"
+        LANGUAGES CXX
+)
+
+include(cmake/project-is-top-level.cmake)
+include(cmake/variables.cmake)
+
+# ---- Declare library ----
+
+set(ABSL_PROPAGATE_CXX_STD ON)
+add_subdirectory(vendor/abseil-cpp)
+add_subdirectory(vendor/googletest)
+add_subdirectory(vendor/benchmark)
+
+add_library(dawn_dawn
+        ./lib/ir/internal/type_manager.cc
+        ./lib/ir/module.cc
+        ./lib/ir/types.cc
+        ./lib/utility/assertions.cc)
+add_library(dawn::dawn ALIAS dawn_dawn)
+
+if (NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(dawn_dawn PUBLIC DAWN_STATIC_DEFINE)
+endif ()
+
+set_target_properties(
+        dawn_dawn PROPERTIES
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN YES
+        VERSION "${PROJECT_VERSION}"
+        SOVERSION "${PROJECT_VERSION_MAJOR}"
+        EXPORT_NAME dawn
+        OUTPUT_NAME dawn)
+
+target_include_directories(
+        dawn_dawn ${warning_guard}
+        PUBLIC
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+
+target_link_libraries(dawn_dawn PUBLIC
+        absl::hash
+        absl::strings
+        absl::flat_hash_map)
+target_compile_features(dawn_dawn PUBLIC cxx_std_20)
+set_target_properties(dawn_dawn PROPERTIES
+        CXX_CLANG_TIDY "${DAWN_CXX_CLANG_TIDY}"
+        CXX_FLAGS "${DAWN_CXX_FLAGS}")
+
+add_subdirectory(tools)
+
+# ---- Developer mode ----
+
+if (NOT DAWN_DEVELOPER_MODE)
+    return()
+elseif (NOT PROJECT_IS_TOP_LEVEL)
+    message(
+            AUTHOR_WARNING
+            "Developer mode is intended for developers of dawn"
+    )
+endif ()
+
+include(cmake/dev-mode.cmake)

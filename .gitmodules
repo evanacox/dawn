@@ -1,0 +1,9 @@
+[submodule "vendor/abseil-cpp"]
+	path = vendor/abseil-cpp
+	url = https://github.com/abseil/abseil-cpp
+[submodule "vendor/benchmark"]
+	path = vendor/benchmark
+	url = https://github.com/google/benchmark
+[submodule "vendor/googletest"]
+	path = vendor/googletest
+	url = https://github.com/google/googletest
