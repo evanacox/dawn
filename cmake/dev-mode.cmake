@@ -1,17 +1,17 @@
 include(cmake/folders.cmake)
 
 include(CTest)
-if (BUILD_TESTING)
+if (DAWN_BUILD_TESTING)
     add_subdirectory(tests)
 endif ()
 
-option(BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)
-if (BUILD_MCSS_DOCS)
+option(DAWN_BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)
+if (DAWN_BUILD_MCSS_DOCS)
     include(cmake/docs.cmake)
 endif ()
 
-option(ENABLE_COVERAGE "Enable coverage support separate from CTest's" OFF)
-if (ENABLE_COVERAGE)
+option(DAWN_ENABLE_COVERAGE "Enable coverage support separate from CTest's" OFF)
+if (DAWN_ENABLE_COVERAGE)
     include(cmake/coverage.cmake)
 endif ()
 

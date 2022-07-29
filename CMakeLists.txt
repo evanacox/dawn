@@ -48,6 +48,7 @@ target_include_directories(
 target_link_libraries(dawn_dawn PUBLIC
         absl::hash
         absl::strings
+        absl::str_format
         absl::flat_hash_map)
 target_compile_features(dawn_dawn PUBLIC cxx_std_20)
 set_target_properties(dawn_dawn PROPERTIES
