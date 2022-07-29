@@ -98,12 +98,6 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-2022 ]
 
-        type: [ shared, static ]
-
-        include:
-          - { type: shared, shared: YES }
-          - { type: static, shared: NO }
-
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -118,10 +112,9 @@ jobs:
       - name: Configure
         shell: pwsh
         run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
-          -D BUILD_SHARED_LIBS=${{ matrix.shared }}
 
       - name: Build
-        run: cmake --build build --config Release -j 2
+        run: cmake --build build --config Release -j 2 -DDAWN_ENABLE_TESTS=ON
 
       - name: Test
         working-directory: build

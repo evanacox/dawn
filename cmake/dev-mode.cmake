@@ -1,7 +1,7 @@
 include(cmake/folders.cmake)
 
 include(CTest)
-if (DAWN_BUILD_TESTING)
+if (DAWN_ENABLE_TESTS)
     add_subdirectory(tests)
 endif ()
 
