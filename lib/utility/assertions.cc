@@ -30,9 +30,7 @@ namespace {
 } // namespace
 
 namespace dawn {
-  void internal::
-  
-  assert_fail(const char* condition_string, const char* explanation, SourceLocation loc) noexcept {
+  void internal::assert_fail(const char* condition_string, const char* explanation, SourceLocation loc) noexcept {
     auto out = absl::StrFormat("[dawn] assertion failed: '%s'\n  explanation: '%s'\n  location: %s:%d (in %s)\n",
         condition_string,
         explanation,

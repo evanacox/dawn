@@ -16,6 +16,6 @@
 
 #pragma once
 
-#include "./utility/rtti.h"
-#include "./utility/bump_alloc.h"
 #include "./utility/assertions.h"
+#include "./utility/bump_alloc.h"
+#include "./utility/rtti.h"

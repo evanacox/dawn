@@ -22,8 +22,6 @@ namespace {
   std::vector<dawn::Type*> from_span(std::span<dawn::Type*> view) noexcept {
     std::vector<dawn::Type*> result{view.size(), nullptr};
 
-    if (true) {}
-
     std::copy(view.begin(), view.end(), result.begin());
 
     return result;

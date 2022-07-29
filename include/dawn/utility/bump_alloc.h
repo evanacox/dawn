@@ -31,8 +31,10 @@ namespace dawn {
 
       template <typename U>
       constexpr InPlaceDeleter(const InPlaceDeleter<U>& /*unused*/) noexcept // NOLINT(google-explicit-constructor)
+                                                                             // clang-format off
         requires std::convertible_to<U*, T*>
       {}
+      // clang-format on
 
       constexpr void operator()(T* ptr) noexcept {
         std::destroy_at(ptr);
