@@ -15,7 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: textbook/git-checkout-submodule-action@master
+        with:
+          submodules: 'recursive'
+
       - uses: actions/setup-python@v2
         with: { python-version: "3.8" }
 
@@ -36,6 +38,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
 
       - name: Install LCov
         run: sudo apt-get update -q
@@ -66,6 +70,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
 
       - name: Configure
         env: { CXX: clang++-12 }
@@ -102,6 +108,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
 
       - name: Install static analyzers
         if: matrix.os == 'ubuntu-latest'
@@ -146,7 +154,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+        with:
+          submodules: 'recursive'
+          
       - uses: actions/setup-python@v2
         with: { python-version: "3.8" }
 
