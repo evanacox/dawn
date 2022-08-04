@@ -73,8 +73,22 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Cache LLVM and Clang
+        id: cache-llvm
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./llvm
+          key: llvm-14.0.6
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "14.0.6"
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+
       - name: Configure
-        env: { CXX: clang++-12 }
+        env: { CXX: clang++ }
         run: cmake --preset=ci-sanitize
 
       - name: Build
@@ -89,7 +103,7 @@ jobs:
           strict_init_order=1:\
           detect_leaks=1"
           UBSAN_OPTIONS: print_stacktrace=1
-        run: ./tests/dawn_test
+        run: ctest
 
   test:
     needs: [ lint ]
@@ -107,7 +121,19 @@ jobs:
 
       - name: Install static analyzers
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install clang-tidy cppcheck -y -q
+        id: cache-llvm
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./llvm
+          key: llvm-14.0.6
+
+      - name: Install LLVM and Clang
+        if: matrix.os == 'ubuntu-latest'
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "14.0.6"
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
       - name: Configure
         shell: pwsh

@@ -17,16 +17,15 @@ include(cmake/variables.cmake)
 
 set(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(vendor/abseil-cpp)
-find_package(GTest REQUIRED)
 find_package(benchmark REQUIRED)
 
 add_library(dawn_dawn
-        ./lib/ir/internal/type_manager.cc
-        ./lib/ir/module.cc
-        ./lib/ir/types.cc
-        ./lib/utility/assertions.cc
-        ./lib/utility/apint.cc
-        ./lib/ir/instructions.cc)
+        ./dawn/ir/internal/type_manager.cc
+        ./dawn/ir/module.cc
+        ./dawn/ir/types.cc
+        ./dawn/utility/assertions.cc
+        ./dawn/utility/apint.cc
+        ./dawn/ir/instructions.cc)
 add_library(dawn::dawn ALIAS dawn_dawn)
 
 if (NOT BUILD_SHARED_LIBS)
@@ -45,7 +44,7 @@ set_target_properties(
 target_include_directories(
         dawn_dawn ${warning_guard}
         PUBLIC
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>")
 
 target_link_libraries(dawn_dawn PUBLIC
         absl::hash

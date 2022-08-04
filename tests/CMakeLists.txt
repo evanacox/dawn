@@ -10,16 +10,24 @@ endif ()
 
 # ---- Tests ----
 
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.12.1
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 add_executable(dawn_test
         ./sanity.cc
-        ../lib/ir/internal/type_manager.test.cc
-        ../lib/ir/types.test.cc
-        ../lib/utility/assertions.test.cc
-        ../lib/adt/string_map.test.cc
-        ../lib/adt/string_set.test.cc
-        ../lib/ir/instruction.test.cc
-        ../lib/ir/instructions.test.cc
-        ../lib/utility/apint.test.cc)
+        ../dawn/ir/internal/type_manager.test.cc
+        ../dawn/ir/types.test.cc
+        ../dawn/utility/assertions.test.cc
+        ../dawn/ir/instruction.test.cc
+        ../dawn/ir/instructions.test.cc
+        ../dawn/utility/apint.test.cc)
 target_link_libraries(dawn_test PRIVATE dawn::dawn GTest::gtest GTest::gtest_main)
 target_compile_features(dawn_test PRIVATE cxx_std_20)
 
