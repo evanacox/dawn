@@ -159,7 +159,7 @@ jobs:
 
       - name: Configure
         if: matrix.os == 'ubuntu-latest'
-        env: { CXX: g++10 }
+        env: { CXX: g++-10 }
         run: cmake --preset=ci-ubuntu
 
       - name: Configure
