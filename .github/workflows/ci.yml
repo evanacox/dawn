@@ -87,6 +87,9 @@ jobs:
           version: "14.0"
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
+      - name: Install Benchmarks
+        run: sudo apt-get install -y libbenchmark-dev
+
       - name: Configure
         env: { CXX: clang++ }
         run: cmake --preset=ci-sanitize
@@ -134,6 +137,10 @@ jobs:
         with:
           version: "14.0"
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+          
+      - name: Install Benchmarks
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libbenchmark-dev
 
       - name: Configure
         shell: pwsh

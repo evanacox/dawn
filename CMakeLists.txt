@@ -17,7 +17,6 @@ include(cmake/variables.cmake)
 
 set(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(vendor/abseil-cpp)
-find_package(benchmark REQUIRED)
 
 add_library(dawn_dawn
         ./dawn/ir/internal/type_manager.cc

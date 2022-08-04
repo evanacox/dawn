@@ -1,8 +1,14 @@
 include(cmake/folders.cmake)
 
+option(DAWN_ENABLE_TESTS "Enable building tests" OFF)
 include(CTest)
 if (DAWN_ENABLE_TESTS)
     add_subdirectory(tests)
+endif ()
+
+option(DAWN_ENABLE_BENCHMARKS "Enable building benchmarks" OFF)
+if (DAWN_ENABLE_BENCHMARKS)
+    add_subdirectory(benchmarks)
 endif ()
 
 option(DAWN_BUILD_MCSS_DOCS "Build documentation using Doxygen and m.css" OFF)

@@ -12,6 +12,11 @@ a single person and made entirely for learning purposes (and fun!).
 
 See the [BUILDING](BUILDING.md) document.
 
+Useful CMake options (all `OFF` by default):
+
+- `DAWN_DEVELOPER_MODE`: Whether to build with any developer targets enabled.
+- `DAWN_BUILD_BENCHMARKS`: Whether to build benchmarks or not
+
 ## Licensing
 
 Licensed under the Apache-2.0 license. See [LICENSE.txt](./LICENSE.txt)
