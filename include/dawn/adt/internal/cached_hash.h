@@ -16,20 +16,25 @@
 
 #pragma once
 
-#include <cassert>
+#include "absl/hash/hash.h"
+#include <cstddef>
+#include <utility>
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __declspec(dllexport)
-#else
-#define DAWN_PUBLIC __declspec(dllimport)
-#endif
-#else
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __attribute__((visibility("default")))
-#else
-#define DAWN_PUBLIC
-#endif
-#endif
+namespace dawn::internal {
+  template <typename T, typename Hasher> class CachedHash {
+  public:
+    template <typename... Args>
+    /*implicit*/ CachedHash(Args&&... args) // NOLINT(google-explicit-constructor)
+        : object_{std::forward<Args>(args)...} {
+      hash_ = Hasher{}(object_);
+    }
 
-namespace dawn {}
+    template <typename H> friend H AbslHashValue(H h, const CachedHash& c) {
+      return H::combine(std::move(h), c.hash_);
+    }
+
+  private:
+    std::size_t hash_;
+    T object_;
+  };
+} // namespace dawn::internal

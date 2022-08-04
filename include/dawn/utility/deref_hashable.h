@@ -16,20 +16,20 @@
 
 #pragma once
 
-#include <cassert>
+namespace dawn {
+  template <typename T> class DerefHashable final {
+  public:
+    DerefHashable(T* object) noexcept : obj_{object} {} // NOLINT(google-explicit-constructor)
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __declspec(dllexport)
-#else
-#define DAWN_PUBLIC __declspec(dllimport)
-#endif
-#else
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __attribute__((visibility("default")))
-#else
-#define DAWN_PUBLIC
-#endif
-#endif
+    template <typename H> friend H AbslHashValue(H state, const DerefHashable& object) {
+      return H::combine(std::move(state), *object.obj_);
+    }
 
-namespace dawn {}
+    [[nodiscard]] operator T*() const noexcept { // NOLINT(google-explicit-constructor)
+      return obj_;
+    }
+
+  private:
+    T* obj_;
+  };
+} // namespace dawn

@@ -16,17 +16,10 @@
 
 #pragma once
 
+#include "./adt.h"
 #include "./config.h"
 #include "./ir.h"
 #include "./utility.h"
-
-/// @mainpage Dawn
-///
-/// # Introduction
-///
-/// Dawn is a compiler middle-end and back-end library, heavily inspired by the
-/// design (and implementation) of LLVM. The main difference is that it's made by
-/// a single person and made entirely for learning purposes (and fun!).
 
 /// @brief The `dawn` namespace, contains all public APIs of the Dawn library.
 ///

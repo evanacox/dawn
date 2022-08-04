@@ -16,20 +16,22 @@
 
 #pragma once
 
-#include <cassert>
+#include "../ir/value.h"
+#include "../utility/deref_hashable.h"
+#include "absl/container/flat_hash_set.h"
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __declspec(dllexport)
-#else
-#define DAWN_PUBLIC __declspec(dllimport)
-#endif
-#else
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __attribute__((visibility("default")))
-#else
-#define DAWN_PUBLIC
-#endif
-#endif
+namespace dawn {
+  /// Used for instruction de-duplication. Equivalent
+  /// values hash to the same
+  class ValueSet {
+  public:
+    ValueSet() = default;
 
-namespace dawn {}
+    [[nodiscard]] Value* put(Value* value) noexcept {
+      return *values_.insert(value).first;
+    }
+
+  private:
+    absl::flat_hash_set<DerefHashable<Value>> values_;
+  };
+} // namespace dawn

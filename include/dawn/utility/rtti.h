@@ -22,22 +22,24 @@ namespace dawn {
   // clang-format off
   namespace internal {
     template <typename Base, typename Derived>
-    concept RTTIInstanceOf = requires(Base* base, Derived* derived) {
+    concept RTTIInstanceOf = requires(const Base* base, const Derived* derived) {
       { Derived::instance_of(base) } -> std::convertible_to<bool>;
     };
 
     template <typename Base, typename Derived>
-    concept RTTIAssociatedKey = requires(Base* base, Derived* derived) {
+    concept RTTIAssociatedKey = requires(const Base* base, const Derived* derived) {
       { Derived::kind == base->kind() } -> std::convertible_to<bool>;
     };
+
+    template <typename Base, typename Derived>
+    concept RTTICompatible = std::derived_from<Derived, Base> &&(
+        internal::RTTIInstanceOf<Base, Derived> || internal::RTTIAssociatedKey<Base, Derived>);
   } // namespace internal
 
-  template <typename Base, typename Derived>
-  concept RTTICompatible = std::derived_from<Derived, Base> &&(
-      internal::RTTIInstanceOf<Base, Derived> || internal::RTTIAssociatedKey<Base, Derived>);
-
   template <typename Derived, typename Base>
-  [[nodiscard]] bool isa(Base* ptr) noexcept requires(RTTICompatible<Base, Derived>) {
+  [[nodiscard]] bool isa(Base* ptr) noexcept requires internal::RTTICompatible<Base, Derived> {
+    static_assert(!std::same_as<Derived, Base>, "should not be doing `isa` on type check known at compile time");
+
     if constexpr (internal::RTTIInstanceOf<Base, Derived>) {
       return Derived::instance_of(ptr);
     } else {
@@ -46,7 +48,7 @@ namespace dawn {
   }
 
   template <typename Derived, typename Base>
-  [[nodiscard]] Derived* dyn_cast(Base* ptr) noexcept requires RTTICompatible<Base, Derived> {
+  [[nodiscard]] Derived* dyn_cast(Base* ptr) noexcept requires internal::RTTICompatible<Base, Derived> {
     return dawn::isa<Derived>(ptr) ? static_cast<Derived*>(ptr) : nullptr;
   }
   // clang-format on

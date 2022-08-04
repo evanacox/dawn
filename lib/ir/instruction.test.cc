@@ -14,22 +14,9 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#pragma once
+#include "dawn/ir/instruction.h"
+#include "dawn/ir/instructions.h"
+#include "dawn/utility/rtti.h"
+#include "gtest/gtest.h"
 
-#include <cassert>
-
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __declspec(dllexport)
-#else
-#define DAWN_PUBLIC __declspec(dllimport)
-#endif
-#else
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __attribute__((visibility("default")))
-#else
-#define DAWN_PUBLIC
-#endif
-#endif
-
-namespace dawn {}
+TEST(DawnIRInstruction, InstructionRTTI) {}

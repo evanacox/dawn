@@ -17,26 +17,11 @@
 #pragma once
 
 #include "../../utility/bump_alloc.h"
+#include "../../utility/deref_hashable.h"
 #include "../types.h"
 #include "absl/container/flat_hash_set.h"
 
 namespace dawn::internal {
-  class TypeRef final {
-  public:
-    TypeRef(Type* ty) noexcept : ty_{ty} {} // NOLINT(google-explicit-constructor)
-
-    template <typename H> friend H AbslHashValue(H state, const TypeRef& ty) {
-      return H::combine(std::move(state), *ty.ty_);
-    }
-
-    [[nodiscard]] operator Type*() const noexcept { // NOLINT(google-explicit-constructor)
-      return ty_;
-    }
-
-  private:
-    Type* ty_;
-  };
-
   class TypeManager final {
   public:
     explicit TypeManager(BumpAlloc* alloc) noexcept;
@@ -80,7 +65,7 @@ namespace dawn::internal {
   private:
     Type* insert_unique(BumpPtr<Type> ty) noexcept;
 
-    absl::flat_hash_set<TypeRef> types_;
+    absl::flat_hash_set<DerefHashable<Type>> types_;
     std::vector<BumpPtr<Type>> owned_;
   };
 } // namespace dawn::internal

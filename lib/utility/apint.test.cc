@@ -14,22 +14,27 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#pragma once
+#include "dawn/utility/apint.h"
+#include "gtest/gtest.h"
+#include <limits>
 
-#include <cassert>
+TEST(DawnUtilityAPInt, APIntNativeWidthWorks) {
+  auto integer = dawn::APInt(std::numeric_limits<std::uint64_t>::max(), dawn::Width::i64);
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __declspec(dllexport)
-#else
-#define DAWN_PUBLIC __declspec(dllimport)
-#endif
-#else
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __attribute__((visibility("default")))
-#else
-#define DAWN_PUBLIC
-#endif
-#endif
+  EXPECT_EQ(integer.width(), 64);
+  EXPECT_EQ(integer.value(), std::numeric_limits<std::uint64_t>::max());
+}
 
-namespace dawn {}
+TEST(DawnUtilityAPInt, APIntSmallerWidthWorks) {
+  auto integer = dawn::APInt(3, dawn::Width::i8);
+
+  EXPECT_EQ(integer.width(), 8);
+  EXPECT_EQ(integer.value(), 3);
+}
+
+TEST(DawnUtilityAPInt, APIntMasksOffExtraBits) {
+  auto integer = dawn::APInt(std::numeric_limits<std::uint64_t>::max(), dawn::Width::i8);
+
+  EXPECT_EQ(integer.width(), 8);
+  EXPECT_EQ(integer.value(), std::numeric_limits<std::uint8_t>::max());
+}

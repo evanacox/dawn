@@ -118,7 +118,7 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ./tests/dawn_test
+        run: ctest
 
   docs:
     # Deploy docs only when builds succeed

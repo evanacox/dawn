@@ -22,24 +22,23 @@
 #pragma once
 
 #include "../config.h"
+#include "../utility/assertions.h"
 #include "../utility/rtti.h"
 #include "absl/hash/hash.h"
 #include <algorithm>
 #include <bit>
-#include <cassert>
 #include <cstddef>
 #include <memory>
 #include <span>
 #include <vector>
 
 namespace dawn {
+  class Module;
+
   namespace internal {
     enum class TypeKind { integer, floating_point, boolean, ptr, array, structure };
   } // namespace internal
 
-  ///
-  ///
-  ///
   class DAWN_PUBLIC Type {
   public:
     virtual ~Type() = default;
@@ -54,12 +53,17 @@ namespace dawn {
       return state;
     }
 
+    [[nodiscard]] Module* module() const noexcept {
+      return mod_;
+    }
+
   protected:
+    template <typename T> constexpr explicit Type(T* /*unused*/) noexcept : kind_{T::kind} {}
+
     virtual void hash(absl::HashState state) const noexcept = 0;
 
-    constexpr explicit Type(internal::TypeKind kind) noexcept : kind_{kind} {}
-
   private:
+    Module* mod_;
     internal::TypeKind kind_;
   };
 
@@ -67,9 +71,9 @@ namespace dawn {
   public:
     inline constexpr static internal::TypeKind kind = internal::TypeKind::integer;
 
-    [[nodiscard]] constexpr explicit Int(std::uint64_t width) noexcept : Type(kind), width_{width} {
-      assert("integers can only have powers of two as their size" && std::has_single_bit(width_));
-      assert("integer width must be in the range [8, 64]" && 8 <= width && width <= 64);
+    [[nodiscard]] constexpr explicit Int(std::uint64_t width) noexcept : Type(this), width_{width} {
+      DAWN_ASSERT(std::has_single_bit(width_), "integers can only have powers of two as their size");
+      DAWN_ASSERT(8 <= width && width <= 64, "integer width must be in the range [8, 64]");
     }
 
     ~Int() final = default;
@@ -89,8 +93,8 @@ namespace dawn {
   public:
     inline constexpr static internal::TypeKind kind = internal::TypeKind::floating_point;
 
-    [[nodiscard]] constexpr explicit Float(std::uint64_t width) noexcept : Type(kind), width_{width} {
-      assert("only `binary32` and `binary64` IEEE floats are supported" && (width == 32 || width == 64));
+    [[nodiscard]] constexpr explicit Float(std::uint64_t width) noexcept : Type(this), width_{width} {
+      DAWN_ASSERT(width == 32 || width == 64, "only `binary32` and `binary64` IEEE floats are supported");
     }
 
     ~Float() final = default;
@@ -110,7 +114,7 @@ namespace dawn {
   public:
     inline constexpr static internal::TypeKind kind = internal::TypeKind::boolean;
 
-    [[nodiscard]] constexpr explicit Bool() noexcept : Type(kind) {}
+    [[nodiscard]] constexpr explicit Bool() noexcept : Type(this) {}
 
     ~Bool() final = default;
 
@@ -122,7 +126,7 @@ namespace dawn {
   public:
     inline constexpr static internal::TypeKind kind = internal::TypeKind::ptr;
 
-    [[nodiscard]] constexpr explicit Ptr() noexcept : Type(kind) {}
+    [[nodiscard]] constexpr explicit Ptr() noexcept : Type(this) {}
 
     ~Ptr() final = default;
 
@@ -135,7 +139,7 @@ namespace dawn {
     inline constexpr static internal::TypeKind kind = internal::TypeKind::array;
 
     [[nodiscard]] constexpr explicit Array(Type* element, std::uint64_t len) noexcept
-        : Type(kind),
+        : Type(this),
           element_{element},
           len_{len} {}
 

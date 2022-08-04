@@ -17,29 +17,50 @@
 #pragma once
 
 #include "../config.h"
+#include "./instruction.h"
 #include "./value.h"
-#include "absl/container/inlined_vector.h"
-#include <initializer_list>
-#include <span>
 
 namespace dawn {
-  class Instruction : public Value {
+  class DAWN_PUBLIC BinaryInst : public Instruction {
   public:
     [[nodiscard]] static bool instance_of(const Value* val) {
-      return val->kind() >= ValueKind::inst_begin && val->kind() <= ValueKind::inst_end;
+      return val->kind() >= ValueKind::binary_inst_begin && val->kind() <= ValueKind::binary_inst_end;
     }
 
-    [[nodiscard]] std::span<Value* const> operands() const noexcept {
-      return {operands_.data(), operands_.size()};
+    [[nodiscard]] Value* lhs() const noexcept {
+      return this->operands()[0];
+    }
+
+    [[nodiscard]] Value* rhs() const noexcept {
+      return this->operands()[0];
     }
 
   protected:
     template <typename T>
-    Instruction(T* ptr, Type* ty, std::initializer_list<Value*> operands) noexcept
-        : Value(ptr, ty),
-          operands_{operands} {}
+    BinaryInst(T* ptr, Type* ty, Value* lhs, Value* rhs) noexcept : Instruction(ptr, ty, {lhs, rhs}) {}
+  };
 
-  private:
-    absl::InlinedVector<Value*, 3> operands_;
+  class DAWN_PUBLIC IAdd final : public BinaryInst {
+  public:
+    inline static constexpr ValueKind kind = ValueKind::iadd_inst;
+
+    IAdd(Value* lhs, Value* rhs) noexcept : BinaryInst(this, lhs->type(), lhs, rhs) {
+      DAWN_ASSERT(lhs->type() == rhs->type(), "`lhs` and `rhs` for `iadd` must have the same type");
+    }
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
+  };
+
+  class DAWN_PUBLIC ISub final : public BinaryInst {
+  public:
+    inline static constexpr ValueKind kind = ValueKind::iadd_inst;
+
+    ISub(Value* lhs, Value* rhs) noexcept : BinaryInst(this, lhs->type(), lhs, rhs) {
+      DAWN_ASSERT(lhs->type() == rhs->type(), "`lhs` and `rhs` for `iadd` must have the same type");
+    }
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
   };
 } // namespace dawn

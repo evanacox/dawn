@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include "./utility/apint.h"
 #include "./utility/assertions.h"
 #include "./utility/bump_alloc.h"
 #include "./utility/rtti.h"
+
+namespace dawn {}

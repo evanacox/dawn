@@ -13,23 +13,3 @@
 // See the License for the specific language governing permissions and       //
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
-
-#pragma once
-
-#include <cassert>
-
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __declspec(dllexport)
-#else
-#define DAWN_PUBLIC __declspec(dllimport)
-#endif
-#else
-#ifdef DAWN_BUILDING_LIBRARY
-#define DAWN_PUBLIC __attribute__((visibility("default")))
-#else
-#define DAWN_PUBLIC
-#endif
-#endif
-
-namespace dawn {}

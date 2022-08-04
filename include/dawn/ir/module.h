@@ -72,11 +72,11 @@ namespace dawn {
       return manager_.empty_struct();
     }
 
-    [[nodiscard]] Type* int_of_width(std::uint64_t width) const noexcept {
+    [[nodiscard]] Type* int_type(std::uint64_t width) const noexcept {
       return manager_.int_of_width(width);
     }
 
-    [[nodiscard]] Type* float_of_width(std::uint64_t width) const noexcept {
+    [[nodiscard]] Type* float_type(std::uint64_t width) const noexcept {
       return manager_.float_of_width(width);
     }
 

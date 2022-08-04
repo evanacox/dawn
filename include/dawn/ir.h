@@ -18,6 +18,9 @@
 
 #include "./ir/constant.h"
 #include "./ir/instruction.h"
+#include "./ir/instructions.h"
 #include "./ir/module.h"
 #include "./ir/types.h"
 #include "./ir/value.h"
+
+namespace dawn {}

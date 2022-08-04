@@ -11,11 +11,16 @@ endif ()
 # ---- Tests ----
 
 add_executable(dawn_test
+        ./sanity.cc
         ../lib/ir/internal/type_manager.test.cc
         ../lib/ir/types.test.cc
         ../lib/utility/assertions.test.cc
-        ./sanity.cc)
-target_link_libraries(dawn_test PRIVATE dawn::dawn gtest gtest_main)
+        ../lib/adt/string_map.test.cc
+        ../lib/adt/string_set.test.cc
+        ../lib/ir/instruction.test.cc
+        ../lib/ir/instructions.test.cc
+        ../lib/utility/apint.test.cc)
+target_link_libraries(dawn_test PRIVATE dawn::dawn GTest::gtest GTest::gtest_main)
 target_compile_features(dawn_test PRIVATE cxx_std_20)
 
 include(GoogleTest)

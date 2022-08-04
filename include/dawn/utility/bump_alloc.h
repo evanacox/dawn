@@ -62,7 +62,7 @@ namespace dawn {
 
     template <typename T, typename... Args>
     [[nodiscard]] BumpPtr<T> alloc(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
-      if (offset_ + sizeof(T) >= BumpAlloc::chunk_size) {
+      if (offset_ + sizeof(T) >= BumpAlloc::chunk_size || chunks_.empty()) {
         chunks_.push_back(std::make_unique<Chunk>());
         offset_ = 0;
       }

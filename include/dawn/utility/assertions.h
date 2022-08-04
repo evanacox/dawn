@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "../config.h"
 #include <cstdint>
 
 namespace dawn::internal {
@@ -54,11 +55,12 @@ namespace dawn::internal {
     uint_least32_t line_ = 0;
   };
 
-  [[noreturn]] void assert_fail(const char* condition_string,
+  [[noreturn]] DAWN_PUBLIC void assert_fail(const char* condition_string,
       const char* explanation,
       SourceLocation loc = SourceLocation::current()) noexcept;
 
-  [[noreturn]] void debug_unreachable(const char* explanation, SourceLocation loc = SourceLocation::current()) noexcept;
+  [[noreturn]] DAWN_PUBLIC void debug_unreachable(const char* explanation,
+      SourceLocation loc = SourceLocation::current()) noexcept;
 } // namespace dawn::internal
 
 #if defined _WIN32 || defined __CYGWIN__
@@ -83,7 +85,7 @@ namespace dawn::internal {
 #ifdef DAWN_DISABLE_ASSERTIONS
 #define DAWN_ASSERT(cond, reason)                                                                                      \
   do {                                                                                                                 \
-    if (!(cond)) {                                                                                                     \
+    if (!(cond)) [[unlikely]] {                                                                                        \
       __builtin_unreachable();                                                                                         \
     }                                                                                                                  \
   } while (false)
@@ -92,9 +94,9 @@ namespace dawn::internal {
 #define DAWN_ASSERT(cond, reason)                                                                                      \
   do {                                                                                                                 \
     if (!(cond)) [[unlikely]] {                                                                                        \
-      ::dawn::internal::assert_fail(#cond, reason);                                                                    \
+      ::dawn::internal::assert_fail((#cond), (reason));                                                                \
     }                                                                                                                  \
   } while (false)
-#define DAWN_UNREACHABLE(reason) ::dawn::internal::debug_unreachable(reason)
+#define DAWN_UNREACHABLE(reason) ::dawn::internal::debug_unreachable((reason))
 #endif
 #endif

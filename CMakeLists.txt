@@ -17,14 +17,16 @@ include(cmake/variables.cmake)
 
 set(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(vendor/abseil-cpp)
-add_subdirectory(vendor/googletest)
-add_subdirectory(vendor/benchmark)
+find_package(GTest REQUIRED)
+find_package(benchmark REQUIRED)
 
 add_library(dawn_dawn
         ./lib/ir/internal/type_manager.cc
         ./lib/ir/module.cc
         ./lib/ir/types.cc
-        ./lib/utility/assertions.cc)
+        ./lib/utility/assertions.cc
+        ./lib/utility/apint.cc
+        ./lib/ir/instructions.cc)
 add_library(dawn::dawn ALIAS dawn_dawn)
 
 if (NOT BUILD_SHARED_LIBS)

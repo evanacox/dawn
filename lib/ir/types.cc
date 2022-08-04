@@ -29,9 +29,9 @@ namespace {
 } // namespace
 
 namespace dawn {
-  Struct::Struct(std::vector<dawn::Type*> fields) noexcept : Type(Struct::kind), fields_{std::move(fields)} {}
+  Struct::Struct(std::vector<dawn::Type*> fields) noexcept : Type(this), fields_{std::move(fields)} {}
 
-  Struct::Struct(std::span<dawn::Type*> fields) noexcept : Type(Struct::kind), fields_{from_span(fields)} {}
+  Struct::Struct(std::span<dawn::Type*> fields) noexcept : Type(this), fields_{from_span(fields)} {}
 
   void Int::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Int)}, width_);
