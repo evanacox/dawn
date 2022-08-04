@@ -127,7 +127,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-2022 ]
+        # macos-latest is currently macos-11, which has Clang 12 from Xcode. this is too old
+        os: [ macos-12, ubuntu-latest, windows-2022 ]
 
     runs-on: ${{ matrix.os }}
 
@@ -156,13 +157,9 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libbenchmark-dev
 
-      - name: Set up GCC
-        if: matrix.os == 'ubuntu-latest'
-        uses: egor-tensin/setup-gcc@v1
-
       - name: Configure
         if: matrix.os == 'ubuntu-latest'
-        env: { CXX: c++ }
+        env: { CXX: g++10 }
         run: cmake --preset=ci-ubuntu
 
       - name: Configure
