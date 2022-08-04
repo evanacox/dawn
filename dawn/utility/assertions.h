@@ -20,7 +20,7 @@
 #include <cstdint>
 
 namespace dawn::internal {
-  class SourceLocation {
+  class DAWN_PUBLIC SourceLocation {
   public:
     // NOLINTNEXTLINE
     static constexpr SourceLocation current(const char* file = __builtin_FILE(),

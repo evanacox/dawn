@@ -27,9 +27,17 @@ add_library(dawn_dawn
         ./dawn/ir/instructions.cc)
 add_library(dawn::dawn ALIAS dawn_dawn)
 
-if (BUILD_SHARED_LIBS)
-    target_compile_definitions(dawn_dawn PUBLIC DAWN_BUILDING_LIBRARY)
-endif ()
+include(GenerateExportHeader)
+generate_export_header(
+        dawn_dawn
+        BASE_NAME dawn
+        EXPORT_MACRO_NAME DAWN_PUBLIC
+        EXPORT_FILE_NAME export/dawn/shared_export.h
+)
+
+if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(dawn_dawn PUBLIC DAWN_STATIC_DEFINE)
+endif()
 
 set_target_properties(
         dawn_dawn PROPERTIES
@@ -38,24 +46,34 @@ set_target_properties(
         VERSION "${PROJECT_VERSION}"
         SOVERSION "${PROJECT_VERSION_MAJOR}"
         EXPORT_NAME dawn
-        OUTPUT_NAME dawn)
+        OUTPUT_NAME dawn
+)
 
 target_include_directories(
         dawn_dawn ${warning_guard}
         PUBLIC
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>")
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>"
+)
+
+target_include_directories(
+        dawn_dawn SYSTEM
+        PUBLIC
+        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
+)
 
 target_link_libraries(dawn_dawn PUBLIC
         absl::hash
         absl::strings
         absl::str_format
-        absl::flat_hash_map)
+        absl::flat_hash_map
+        )
 
 target_compile_features(dawn_dawn PUBLIC cxx_std_20)
 
 set_target_properties(dawn_dawn PROPERTIES
         CXX_CLANG_TIDY "${DAWN_CXX_CLANG_TIDY}"
-        CXX_FLAGS "${DAWN_CXX_FLAGS}")
+        CXX_FLAGS "${DAWN_CXX_FLAGS}"
+)
 
 add_subdirectory(tools)
 
