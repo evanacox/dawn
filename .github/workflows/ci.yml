@@ -79,12 +79,12 @@ jobs:
         with:
           path: |
             ./llvm
-          key: llvm-14.0.6
+          key: llvm-14.0
 
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v1
         with:
-          version: "14.0.6"
+          version: "14.0"
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
       - name: Configure
@@ -119,20 +119,20 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Install static analyzers
+      - name: Cache LLVM and Clang
         if: matrix.os == 'ubuntu-latest'
         id: cache-llvm
         uses: actions/cache@v2
         with:
           path: |
             ./llvm
-          key: llvm-14.0.6
+          key: llvm-14.0
 
       - name: Install LLVM and Clang
         if: matrix.os == 'ubuntu-latest'
         uses: KyleMayes/install-llvm-action@v1
         with:
-          version: "14.0.6"
+          version: "14.0"
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
       - name: Configure
