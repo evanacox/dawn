@@ -19,7 +19,6 @@
 #include <concepts>
 
 namespace dawn {
-  // clang-format off
   namespace internal {
     template <typename Base, typename Derived>
     concept RTTIInstanceOf = requires(const Base* base, const Derived* derived) {
@@ -51,5 +50,4 @@ namespace dawn {
   [[nodiscard]] Derived* dyn_cast(Base* ptr) noexcept requires internal::RTTICompatible<Base, Derived> {
     return dawn::isa<Derived>(ptr) ? static_cast<Derived*>(ptr) : nullptr;
   }
-  // clang-format on
 } // namespace dawn

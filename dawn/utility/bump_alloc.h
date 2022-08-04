@@ -25,18 +25,14 @@
 
 namespace dawn {
   namespace internal {
-    template <typename T> class InPlaceDeleter {
-    public:
-      constexpr InPlaceDeleter() = default;
+    template <typename T> struct InPlaceDeleter {
+      InPlaceDeleter() = default;
 
       template <typename U>
-      constexpr InPlaceDeleter(const InPlaceDeleter<U>& /*unused*/) noexcept // NOLINT(google-explicit-constructor)
-                                                                             // clang-format off
-        requires std::convertible_to<U*, T*>
-      {}
-      // clang-format on
+      InPlaceDeleter(const InPlaceDeleter<U>& /*unused*/) noexcept // NOLINT(google-explicit-constructor)
+          requires std::convertible_to<U*, T*> {}
 
-      constexpr void operator()(T* ptr) const noexcept {
+      void operator()(T* ptr) const noexcept {
         std::destroy_at(ptr);
       }
     };

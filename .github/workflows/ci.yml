@@ -38,7 +38,7 @@ jobs:
         with: { python-version: "3.8" }
 
       - name: Lint
-        run: cmake -D FORMAT_COMMAND=clang-format -P cmake/lint.cmake
+        run: cmake -D FORMAT_COMMAND=clang-format -P cmake/format.cmake
 
   coverage:
     needs: [ lint ]
@@ -101,7 +101,7 @@ jobs:
           version: "14.0"
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
-      - name: Install Benchmarks
+      - name: Install Benchmark
         run: sudo apt-get install -y libbenchmark-dev
 
       - name: Configure
@@ -152,7 +152,7 @@ jobs:
           version: "14.0"
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
 
-      - name: Install Benchmarks
+      - name: Install Benchmark
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libbenchmark-dev
 
