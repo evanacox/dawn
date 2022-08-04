@@ -36,7 +36,7 @@ namespace dawn {
       {}
       // clang-format on
 
-      constexpr void operator()(T* ptr) noexcept {
+      constexpr void operator()(T* ptr) const noexcept {
         std::destroy_at(ptr);
       }
     };

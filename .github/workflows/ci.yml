@@ -18,15 +18,30 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Cache LLVM and Clang
+        if: matrix.os == 'ubuntu-latest'
+        id: cache-llvm
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./llvm
+          key: llvm-14.0
+
+      - name: Install LLVM and Clang
+        if: matrix.os == 'ubuntu-latest'
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "14.0"
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+
       - uses: actions/setup-python@v2
         with: { python-version: "3.8" }
 
       - name: Lint
-        run: cmake -D FORMAT_COMMAND=clang-format-12 -P cmake/lint.cmake
+        run: cmake -D FORMAT_COMMAND=clang-format -P cmake/lint.cmake
 
   coverage:
     needs: [ lint ]
-
     runs-on: ubuntu-latest
 
     # To enable coverage, delete the last line from the conditional below and
@@ -65,7 +80,6 @@ jobs:
 
   sanitize:
     needs: [ lint ]
-
     runs-on: ubuntu-latest
 
     steps:
@@ -147,6 +161,12 @@ jobs:
         uses: egor-tensin/setup-gcc@v1
 
       - name: Configure
+        if: matrix.os == 'ubuntu-latest'
+        env: { CXX: c++ }
+        run: cmake --preset=ci-ubuntu
+
+      - name: Configure
+        if: matrix.os != 'ubuntu-latest'
         shell: pwsh
         run: cmake "--preset=ci-$("${{ matrix.os }}".split("-")[0])"
 
@@ -160,7 +180,6 @@ jobs:
   docs:
     # Deploy docs only when builds succeed
     needs: [ sanitize, test ]
-
     runs-on: ubuntu-latest
 
     # To enable, first you have to create an orphaned gh-pages branch:
