@@ -27,8 +27,8 @@ add_library(dawn_dawn
         ./dawn/ir/instructions.cc)
 add_library(dawn::dawn ALIAS dawn_dawn)
 
-if (NOT BUILD_SHARED_LIBS)
-    target_compile_definitions(dawn_dawn PUBLIC DAWN_STATIC_DEFINE)
+if (BUILD_SHARED_LIBS)
+    target_compile_definitions(dawn_dawn PUBLIC DAWN_BUILDING_LIBRARY)
 endif ()
 
 set_target_properties(
@@ -50,7 +50,9 @@ target_link_libraries(dawn_dawn PUBLIC
         absl::strings
         absl::str_format
         absl::flat_hash_map)
+
 target_compile_features(dawn_dawn PUBLIC cxx_std_20)
+
 set_target_properties(dawn_dawn PROPERTIES
         CXX_CLANG_TIDY "${DAWN_CXX_CLANG_TIDY}"
         CXX_FLAGS "${DAWN_CXX_FLAGS}")
