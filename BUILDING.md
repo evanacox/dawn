@@ -2,11 +2,8 @@
 
 ## Build
 
-This project doesn't require any special command-line flags to build to keep
-things simple.
-
-Here are the steps for building in release mode with a single-configuration
-generator, like the Unix Makefiles one:
+This project doesn't require any special command-line flags to build normally,
+just make sure that the `vendor/abseil-cpp` Git submodule is checked out. 
 
 ```sh
 cmake -S . -B build -D CMAKE_BUILD_TYPE=Release

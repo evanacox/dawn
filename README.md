@@ -15,6 +15,7 @@ See the [BUILDING](BUILDING.md) document.
 Useful CMake options (all `OFF` by default):
 
 - `DAWN_DEVELOPER_MODE`: Whether to build with any developer targets enabled.
+- `DAWN_BUILD_TESTS`: Whether to build tests or not
 - `DAWN_BUILD_BENCHMARKS`: Whether to build benchmarks or not
 
 ## Licensing

@@ -18,7 +18,9 @@
 
 #include "../config.h"
 #include "../utility/bump_alloc.h"
+#include "./internal/function_manager.h"
 #include "./internal/type_manager.h"
+#include "./ir_builder.h"
 #include "./types.h"
 
 namespace dawn {
@@ -37,59 +39,76 @@ namespace dawn {
     ~Module() = default;
 
     [[nodiscard]] Type* i8() const noexcept {
-      return manager_.i8();
+      return tys_.i8();
     }
 
     [[nodiscard]] Type* i16() const noexcept {
-      return manager_.i16();
+      return tys_.i16();
     }
 
     [[nodiscard]] Type* i32() const noexcept {
-      return manager_.i32();
+      return tys_.i32();
     }
 
     [[nodiscard]] Type* i64() const noexcept {
-      return manager_.i64();
+      return tys_.i64();
     }
 
     [[nodiscard]] Type* boolean() const noexcept {
-      return manager_.boolean();
+      return tys_.boolean();
     }
 
     [[nodiscard]] Type* ptr() const noexcept {
-      return manager_.ptr();
+      return tys_.ptr();
     }
 
     [[nodiscard]] Type* f32() const noexcept {
-      return manager_.f32();
+      return tys_.f32();
     }
 
     [[nodiscard]] Type* f64() const noexcept {
-      return manager_.f64();
+      return tys_.f64();
     }
 
-    [[nodiscard]] Type* empty_struct() const noexcept {
-      return manager_.empty_struct();
+    [[nodiscard]] Type* emptyStruct() const noexcept {
+      return tys_.emptyStruct();
     }
 
-    [[nodiscard]] Type* int_type(std::uint64_t width) const noexcept {
-      return manager_.int_of_width(width);
+    [[nodiscard]] Type* intType(std::uint64_t width) const noexcept {
+      return tys_.intOfWidth(width);
     }
 
-    [[nodiscard]] Type* float_type(std::uint64_t width) const noexcept {
-      return manager_.float_of_width(width);
+    [[nodiscard]] Type* floatType(std::uint64_t width) const noexcept {
+      return tys_.floatOfWidth(width);
     }
 
     [[nodiscard]] Type* array(Type* element, std::uint64_t length) noexcept {
-      return manager_.array(&pool_, element, length);
+      return tys_.array(&pool_, element, length);
     }
 
     [[nodiscard]] Type* structure(std::span<Type*> fields) noexcept {
-      return manager_.structure(&pool_, fields);
+      return tys_.structure(&pool_, fields);
+    }
+
+    [[nodiscard]] Type* voidType() const noexcept {
+      return tys_.voidType();
+    }
+
+    [[nodiscard]] OptionalPtr<Function> findFunction(std::string_view name) const noexcept {
+      return fns_.getFunctionIfExists(name);
+    }
+
+    [[nodiscard]] Function* createFunction(std::string name, Type* ty) noexcept {
+      return fns_.create(std::move(name), ty);
+    }
+
+    [[nodiscard]] IRBuilder builder() noexcept {
+      return IRBuilder(&pool_, this);
     }
 
   private:
     BumpAlloc pool_;
-    internal::TypeManager manager_;
+    internal::TypeManager tys_;
+    internal::FunctionManager fns_;
   };
 } // namespace dawn

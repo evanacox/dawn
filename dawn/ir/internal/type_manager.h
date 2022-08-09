@@ -52,18 +52,20 @@ namespace dawn::internal {
 
     [[nodiscard]] Type* f64() const noexcept;
 
-    [[nodiscard]] Type* empty_struct() const noexcept;
+    [[nodiscard]] Type* emptyStruct() const noexcept;
 
-    [[nodiscard]] Type* int_of_width(std::uint64_t width) const noexcept;
+    [[nodiscard]] Type* voidType() const noexcept;
 
-    [[nodiscard]] Type* float_of_width(std::uint64_t width) const noexcept;
+    [[nodiscard]] Type* intOfWidth(std::uint64_t width) const noexcept;
+
+    [[nodiscard]] Type* floatOfWidth(std::uint64_t width) const noexcept;
 
     [[nodiscard]] Type* array(BumpAlloc* alloc, Type* element, std::uint64_t length) noexcept;
 
     [[nodiscard]] Type* structure(BumpAlloc* alloc, std::span<Type*> fields) noexcept;
 
   private:
-    Type* insert_unique(BumpPtr<Type> ty) noexcept;
+    Type* insertUnique(BumpPtr<Type> ty) noexcept;
 
     absl::flat_hash_set<DerefHashable<Type>> types_;
     std::vector<BumpPtr<Type>> owned_;

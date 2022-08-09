@@ -13,3 +13,25 @@
 // See the License for the specific language governing permissions and       //
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
+
+#include "dawn/ir/instruction.h"
+
+namespace dawn {
+  std::size_t Instruction::useCount(const Value* value) const noexcept {
+    return std::count(operands_.begin(), operands_.end(), value);
+  }
+
+  bool Instruction::uses(const Value* value) const noexcept {
+    return std::find(operands_.begin(), operands_.end(), value) != operands_.end();
+  }
+
+  void Instruction::replaceIfUsed(const Value* to_replace, Value* replace_with) noexcept {
+    std::replace_if(
+        operands_.begin(),
+        operands_.end(),
+        [to_replace](Value* ptr) {
+          return ptr == to_replace;
+        },
+        replace_with);
+  }
+} // namespace dawn

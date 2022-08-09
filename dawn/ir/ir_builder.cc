@@ -14,15 +14,11 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/utility/assertions.h"
-#include "gtest/gtest.h"
+#include "dawn/ir/ir_builder.h"
+#include "dawn/ir/instructions.h"
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
-  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
-  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
-}
-
-TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
-  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
-}
+namespace dawn {
+  void IRBuilder::createIAdd(Value* lhs, Value* rhs) noexcept {
+    pool_->alloc<IAdd>(lhs, rhs);
+  }
+} // namespace dawn

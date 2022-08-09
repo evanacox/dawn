@@ -14,15 +14,45 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/utility/assertions.h"
-#include "gtest/gtest.h"
+#pragma once
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
-  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
-  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
-}
+#include "./instruction.h"
+#include "absl/container/inlined_vector.h"
+#include <span>
 
-TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
-  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
-}
+namespace dawn {
+  class Module;
+
+  class BasicBlock {
+  public:
+    [[nodiscard]] explicit BasicBlock(Module* parent) noexcept : parent_{parent} {}
+
+    [[nodiscard]] Module* parent() const noexcept {
+      return parent_;
+    }
+
+    [[nodiscard]] std::span<const Instruction* const> instructions() const noexcept {
+      return instructions_;
+    }
+
+    [[nodiscard]] std::span<Instruction* const> instructions() noexcept {
+      return instructions_;
+    }
+
+    void prepend(Instruction* inst) noexcept;
+
+    void append(Instruction* inst) noexcept;
+
+    void insertBefore(Instruction* before, Instruction* to_insert) noexcept;
+
+    void insertAfter(Instruction* after, Instruction* to_insert) noexcept;
+
+  private:
+    // 6 makes the size be exactly 8 words, i.e. exactly one normal cache line in size.
+    // on any architectures with 128byte cache line, two fit perfectly
+    inline constexpr static std::size_t small_size = 6;
+
+    Module* parent_;
+    absl::InlinedVector<Instruction*, small_size> instructions_;
+  };
+} // namespace dawn

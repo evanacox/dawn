@@ -37,23 +37,69 @@ namespace dawn {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Int)}, width_);
   }
 
+  bool Int::equals(const Type* ty) const noexcept {
+    const auto& ty1 = *dawn::dyncastUnchecked<const Int>(ty);
+
+    return width() == ty1.width();
+  }
+
   void Float::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Float)}, width_);
+  }
+
+  bool Float::equals(const Type* ty) const noexcept {
+    const auto& ty1 = *dawn::dyncastUnchecked<const Float>(ty);
+
+    return width() == ty1.width();
   }
 
   void Bool::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Bool)});
   }
 
+  bool Bool::equals(const Type* /*unused*/) const noexcept {
+    return true;
+  }
+
   void Ptr::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Ptr)});
+  }
+
+  bool Ptr::equals(const Type* /*unused*/) const noexcept {
+    return true;
   }
 
   void Array::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Array)}, element_, len_);
   }
 
+  bool Array::equals(const Type* ty) const noexcept {
+    const auto& ty1 = *dawn::dyncastUnchecked<const Array>(ty);
+
+    return len() == ty1.len() && *element() == *ty1.element();
+  }
+
   void Struct::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Struct)}, fields_);
+  }
+
+  bool Struct::equals(const Type* ty) const noexcept {
+    const auto& ty1 = *dawn::dyncastUnchecked<const Struct>(ty);
+
+    return std::equal(fields_.begin(),
+        fields_.end(),
+        ty1.fields_.begin(),
+        ty1.fields_.end(),
+        [](const Type* ty1, const Type* ty2) {
+          return *ty1 == *ty2;
+        });
+  }
+
+  void Void::hash(absl::HashState state) const noexcept {
+    absl::HashState::combine(std::move(state), std::type_index{typeid(Void)});
+  }
+
+  bool Void::equals(const Type* /*unused*/) const noexcept {
+    return true;
   }
 } // namespace dawn

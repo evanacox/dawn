@@ -16,11 +16,12 @@
 
 #pragma once
 
+#include "./ir/basic_block.h"
 #include "./ir/constant.h"
+#include "./ir/function.h"
 #include "./ir/instruction.h"
 #include "./ir/instructions.h"
+#include "./ir/ir_builder.h"
 #include "./ir/module.h"
 #include "./ir/types.h"
 #include "./ir/value.h"
-
-namespace dawn {}

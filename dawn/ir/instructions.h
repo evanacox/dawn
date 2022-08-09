@@ -17,21 +17,122 @@
 #pragma once
 
 #include "../config.h"
+#include "../utility/assertions.h"
+#include "./basic_block.h"
 #include "./instruction.h"
+#include "./module.h"
 #include "./value.h"
+#include <utility>
+#include <vector>
 
 namespace dawn {
-  class DAWN_PUBLIC BinaryInst : public Instruction {
+  class DAWN_PUBLIC Phi final : public Instruction {
   public:
-    [[nodiscard]] static bool instance_of(const Value* val) {
-      return val->kind() >= ValueKind::binary_inst_begin && val->kind() <= ValueKind::binary_inst_end;
+    inline static constexpr ValueKind kind = ValueKind::phi_inst;
+
+    [[nodiscard]] explicit Phi(Type* ty) noexcept : Instruction(this, ty, {}) {}
+
+    void addIncomingBlock(BasicBlock* from, Value* value_from) noexcept {
+      incoming_.emplace_back(from, value_from);
     }
 
-    [[nodiscard]] Value* lhs() const noexcept {
+    [[nodiscard]] std::span<const std::pair<BasicBlock*, Value*>> incoming() const noexcept {
+      return incoming_;
+    }
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
+
+  private:
+    std::vector<std::pair<BasicBlock*, Value*>> incoming_;
+  };
+
+  class DAWN_PUBLIC TerminatorInst : public Instruction {
+  public:
+    [[nodiscard]] static bool instanceOf(const Value* val) {
+      return val->kind() >= ValueKind::terminators_inst_begin && val->kind() <= ValueKind::terminators_inst_end;
+    }
+
+    [[nodiscard]] bool references(BasicBlock* value) const noexcept;
+
+    void replaceReferencedBlock(BasicBlock* to_replace, BasicBlock* replace_with) noexcept;
+
+  protected:
+    template <typename T>
+    TerminatorInst(T* ptr,
+        BasicBlock* any,
+        std::initializer_list<BasicBlock*> blocks,
+        std::initializer_list<Value*> values) noexcept
+        : Instruction(ptr, any->parent()->voidType(), values),
+          references_{blocks} {}
+
+    [[nodiscard]] std::span<BasicBlock* const> refs() const noexcept {
+      return references_;
+    }
+
+  private:
+    absl::InlinedVector<BasicBlock*, 2> references_;
+  };
+
+  class DAWN_PUBLIC Br final : public TerminatorInst {
+  public:
+    inline static constexpr ValueKind kind = ValueKind::br_inst;
+
+    [[nodiscard]] explicit Br(BasicBlock* target) noexcept : TerminatorInst(this, target, {target}, {}) {}
+
+    [[nodiscard]] BasicBlock* target() const noexcept {
+      return this->refs()[0];
+    }
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
+  };
+
+  class DAWN_PUBLIC CondBr final : public TerminatorInst {
+  public:
+    inline static constexpr ValueKind kind = ValueKind::cbr_inst;
+
+    [[nodiscard]] explicit CondBr(BasicBlock* if_true, Value* cond, BasicBlock* if_false) noexcept
+        : TerminatorInst(this, if_true, {if_true, if_false}, {cond}) {}
+
+    [[nodiscard]] Value* cond() const noexcept {
       return this->operands()[0];
     }
 
-    [[nodiscard]] Value* rhs() const noexcept {
+    [[nodiscard]] BasicBlock* trueBranch() const noexcept {
+      return this->refs()[0];
+    }
+
+    [[nodiscard]] BasicBlock* falseBranch() const noexcept {
+      return this->refs()[1];
+    }
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
+
+  private:
+    BasicBlock* target_;
+  };
+
+  class DAWN_PUBLIC BinaryInst : public Instruction {
+  public:
+    [[nodiscard]] static bool instanceOf(const Value* val) {
+      return val->kind() >= ValueKind::binary_inst_begin && val->kind() <= ValueKind::binary_inst_end;
+    }
+
+    [[nodiscard]] const Value* lhs() const noexcept {
+      return this->operands()[0];
+    }
+
+    [[nodiscard]] const Value* rhs() const noexcept {
+      return this->operands()[0];
+    }
+
+    [[nodiscard]] Value* lhs() noexcept {
+      return this->operands()[0];
+    }
+
+    [[nodiscard]] Value* rhs() noexcept {
       return this->operands()[0];
     }
 

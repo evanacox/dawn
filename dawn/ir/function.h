@@ -14,15 +14,41 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/utility/assertions.h"
-#include "gtest/gtest.h"
+#pragma once
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
-  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
-  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
-}
+#include "./basic_block.h"
+#include "./types.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
-  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
-}
+namespace dawn {
+  class Function {
+  public:
+    [[nodiscard]] explicit Function(std::string name, Type* return_ty) noexcept
+        : name_{std::move(name)},
+          return_ty_{return_ty} {}
+
+    [[nodiscard]] std::string_view name() const noexcept {
+      return name_;
+    }
+
+    [[nodiscard]] const BasicBlock* entry() const noexcept {
+      return &blocks_.front();
+    }
+
+    [[nodiscard]] BasicBlock* entry() noexcept {
+      return &blocks_.front();
+    }
+
+    void addBlock(BasicBlock block) noexcept {
+      blocks_.push_back(std::move(block));
+    }
+
+  private:
+    std::string name_;
+    Type* return_ty_;
+    absl::InlinedVector<Type*, 2> args_;
+    std::vector<BasicBlock> blocks_;
+  };
+} // namespace dawn

@@ -14,15 +14,22 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/utility/assertions.h"
-#include "gtest/gtest.h"
+#pragma once
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
-  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
-  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
-}
+#include "../../adt/optional_ptr.h"
+#include "../function.h"
+#include "absl/container/flat_hash_map.h"
 
-TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
-  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
-}
+namespace dawn::internal {
+  class FunctionManager {
+  public:
+    [[nodiscard]] OptionalPtr<Function> getFunctionIfExists(std::string_view name) const noexcept;
+
+    [[nodiscard]] bool contains(std::string_view name) const noexcept;
+
+    [[nodiscard]] Function* create(std::string name, Type* ty) noexcept;
+
+  private:
+    absl::flat_hash_map<std::string, std::unique_ptr<Function>> functions_;
+  };
+} // namespace dawn::internal

@@ -14,15 +14,29 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/utility/assertions.h"
-#include "gtest/gtest.h"
+#include "dawn/ir/basic_block.h"
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
-  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
-  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
-}
+namespace dawn {
 
-TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
-  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
-}
+  void BasicBlock::prepend(Instruction* inst) noexcept {
+    instructions_.insert(instructions_.begin(), inst);
+  }
+
+  void BasicBlock::append(Instruction* inst) noexcept {
+    instructions_.push_back(inst);
+  }
+
+  void BasicBlock::insertBefore(Instruction* before, Instruction* to_insert) noexcept {
+    // NOLINTNEXTLINE(readability-qualified-auto)
+    auto it = std::find(instructions_.begin(), instructions_.end(), before);
+
+    instructions_.insert(it, to_insert);
+  }
+
+  void BasicBlock::insertAfter(Instruction* after, Instruction* to_insert) noexcept {
+    // NOLINTNEXTLINE(readability-qualified-auto)
+    auto it = std::find(instructions_.begin(), instructions_.end(), after);
+
+    instructions_.insert(it + 1, to_insert);
+  }
+} // namespace dawn

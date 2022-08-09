@@ -99,6 +99,16 @@ namespace dawn {
     }
 
   protected:
+    Value() = default;
+
+    Value(const Value&) = default;
+
+    Value(Value&&) = default;
+
+    Value& operator=(const Value&) = default;
+
+    Value& operator=(Value&&) = default;
+
     template <typename T> explicit Value(T* /*unused*/, Type* ty) noexcept : kind_{T::kind}, ty_{ty} {}
 
     virtual void hash(absl::HashState state) const noexcept = 0;

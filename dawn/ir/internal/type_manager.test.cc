@@ -26,25 +26,25 @@ TEST(DawnIRInternalTypeManager, PredefsDefinedProperly) {
   {
     EXPECT_EQ(manager.i8(), manager.i8());
     EXPECT_TRUE(dawn::isa<dawn::Int>(manager.i8()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Int>(manager.i8())->width() == 8);
+    EXPECT_TRUE(dawn::dyncast<dawn::Int>(manager.i8())->width() == 8);
   }
 
   {
     EXPECT_EQ(manager.i16(), manager.i16());
     EXPECT_TRUE(dawn::isa<dawn::Int>(manager.i16()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Int>(manager.i16())->width() == 16);
+    EXPECT_TRUE(dawn::dyncast<dawn::Int>(manager.i16())->width() == 16);
   }
 
   {
     EXPECT_EQ(manager.i32(), manager.i32());
     EXPECT_TRUE(dawn::isa<dawn::Int>(manager.i32()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Int>(manager.i32())->width() == 32);
+    EXPECT_TRUE(dawn::dyncast<dawn::Int>(manager.i32())->width() == 32);
   }
 
   {
     EXPECT_EQ(manager.i64(), manager.i64());
     EXPECT_TRUE(dawn::isa<dawn::Int>(manager.i64()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Int>(manager.i64())->width() == 64);
+    EXPECT_TRUE(dawn::dyncast<dawn::Int>(manager.i64())->width() == 64);
   }
 
   {
@@ -60,19 +60,24 @@ TEST(DawnIRInternalTypeManager, PredefsDefinedProperly) {
   {
     EXPECT_EQ(manager.f32(), manager.f32());
     EXPECT_TRUE(dawn::isa<dawn::Float>(manager.f32()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Float>(manager.f32())->width() == 32);
+    EXPECT_TRUE(dawn::dyncast<dawn::Float>(manager.f32())->width() == 32);
   }
 
   {
     EXPECT_EQ(manager.f64(), manager.f64());
     EXPECT_TRUE(dawn::isa<dawn::Float>(manager.f64()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Float>(manager.f64())->width() == 64);
+    EXPECT_TRUE(dawn::dyncast<dawn::Float>(manager.f64())->width() == 64);
   }
 
   {
-    EXPECT_EQ(manager.empty_struct(), manager.empty_struct());
-    EXPECT_TRUE(dawn::isa<dawn::Struct>(manager.empty_struct()));
-    EXPECT_TRUE(dawn::dyn_cast<dawn::Struct>(manager.empty_struct())->fields().empty());
+    EXPECT_EQ(manager.emptyStruct(), manager.emptyStruct());
+    EXPECT_TRUE(dawn::isa<dawn::Struct>(manager.emptyStruct()));
+    EXPECT_TRUE(dawn::dyncast<dawn::Struct>(manager.emptyStruct())->fields().empty());
+  }
+
+  {
+    EXPECT_EQ(manager.voidType(), manager.voidType());
+    EXPECT_TRUE(dawn::isa<dawn::Void>(manager.voidType()));
   }
 }
 
@@ -87,7 +92,8 @@ TEST(DawnIRInternalTypeManager, PredefsUniquedProperly) {
       manager.ptr(),
       manager.f32(),
       manager.f64(),
-      manager.empty_struct()};
+      manager.emptyStruct(),
+      manager.voidType()};
 
   EXPECT_EQ(std::unique(list.begin(), list.end()), list.end());
 
@@ -109,12 +115,12 @@ TEST(DawnIRInternalTypeManager, PredefIntsSameAsByWidth) {
   auto alloc = dawn::BumpAlloc{};
   auto manager = dawn::internal::TypeManager{&alloc};
 
-  EXPECT_EQ(manager.i8(), manager.int_of_width(8));
-  EXPECT_EQ(manager.i16(), manager.int_of_width(16));
-  EXPECT_EQ(manager.i32(), manager.int_of_width(32));
-  EXPECT_EQ(manager.i64(), manager.int_of_width(64));
-  EXPECT_NE(manager.i8(), manager.int_of_width(32));
-  EXPECT_NE(manager.i16(), manager.int_of_width(32));
-  EXPECT_NE(manager.i32(), manager.int_of_width(64));
-  EXPECT_NE(manager.i64(), manager.int_of_width(32));
+  EXPECT_EQ(manager.i8(), manager.intOfWidth(8));
+  EXPECT_EQ(manager.i16(), manager.intOfWidth(16));
+  EXPECT_EQ(manager.i32(), manager.intOfWidth(32));
+  EXPECT_EQ(manager.i64(), manager.intOfWidth(64));
+  EXPECT_NE(manager.i8(), manager.intOfWidth(32));
+  EXPECT_NE(manager.i16(), manager.intOfWidth(32));
+  EXPECT_NE(manager.i32(), manager.intOfWidth(64));
+  EXPECT_NE(manager.i64(), manager.intOfWidth(32));
 }

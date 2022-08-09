@@ -25,14 +25,14 @@
 namespace dawn {
   class DAWN_PUBLIC Constant : public Value {
   public:
-    [[nodiscard]] static bool instance_of(const Value* val) {
+    [[nodiscard]] static bool instanceOf(const Value* val) {
       constexpr auto constant_start = ValueKind::const_int;
       constexpr auto constant_end = ValueKind::const_null;
 
       return val->kind() >= constant_start && val->kind() <= constant_end;
     }
 
-    [[nodiscard]] bool is_null() const noexcept {
+    [[nodiscard]] bool isZeroValue() const noexcept {
       return null_;
     }
 

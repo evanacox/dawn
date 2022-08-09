@@ -27,12 +27,18 @@ add_dawn_library(dawn_dawn
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>"
         "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
         FILES
-        ./dawn/ir/internal/type_manager.cc
         ./dawn/ir/module.cc
         ./dawn/ir/types.cc
         ./dawn/utility/assertions.cc
         ./dawn/utility/apint.cc
-        ./dawn/ir/instructions.cc)
+        ./dawn/ir/instructions.cc
+        ./dawn/ir/instructions.cc
+        ./dawn/ir/instruction.cc
+        ./dawn/ir/basic_block.cc
+        ./dawn/ir/ir_builder.cc 
+        ./dawn/ir/function.cc 
+        ./dawn/ir/internal/type_manager.cc
+        ./dawn/ir/internal/function_manager.cc)
 
 include(GenerateExportHeader)
 generate_export_header(

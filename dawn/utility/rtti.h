@@ -16,13 +16,14 @@
 
 #pragma once
 
+#include "../adt/optional_ptr.h"
 #include <concepts>
 
 namespace dawn {
   namespace internal {
     template <typename Base, typename Derived>
     concept RTTIInstanceOf = requires(const Base* base, const Derived* derived) {
-      { Derived::instance_of(base) } -> std::convertible_to<bool>;
+      { Derived::instanceOf(base) } -> std::convertible_to<bool>;
     };
 
     template <typename Base, typename Derived>
@@ -40,14 +41,21 @@ namespace dawn {
     static_assert(!std::same_as<Derived, Base>, "should not be doing `isa` on type check known at compile time");
 
     if constexpr (internal::RTTIInstanceOf<Base, Derived>) {
-      return Derived::instance_of(ptr);
+      return Derived::instanceOf(ptr);
     } else {
       return Derived::kind == ptr->kind();
     }
   }
 
   template <typename Derived, typename Base>
-  [[nodiscard]] Derived* dyn_cast(Base* ptr) noexcept requires internal::RTTICompatible<Base, Derived> {
+  [[nodiscard]] OptionalPtr<Derived> dyncast(Base* ptr) noexcept requires internal::RTTICompatible<Base, Derived> {
     return dawn::isa<Derived>(ptr) ? static_cast<Derived*>(ptr) : nullptr;
+  }
+
+  template <typename Derived, typename Base>
+  [[nodiscard]] Derived* dyncastUnchecked(Base* ptr) noexcept requires internal::RTTICompatible<Base, Derived> {
+    DAWN_ASSERT(dawn::isa<Derived>(ptr), "dawn::dyncastUnchecked: was not an instance of Derived");
+
+    return static_cast<Derived*>(ptr);
   }
 } // namespace dawn

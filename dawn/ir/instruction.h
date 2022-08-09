@@ -25,15 +25,35 @@
 namespace dawn {
   class Instruction : public Value {
   public:
-    [[nodiscard]] static bool instance_of(const Value* val) {
+    [[nodiscard]] static bool instanceOf(const Value* val) {
       return val->kind() >= ValueKind::inst_begin && val->kind() <= ValueKind::inst_end;
     }
 
-    [[nodiscard]] std::span<Value* const> operands() const noexcept {
+    [[nodiscard]] std::span<const Value* const> operands() const noexcept {
       return {operands_.data(), operands_.size()};
     }
 
+    [[nodiscard]] std::span<Value* const> operands() noexcept {
+      return {operands_.data(), operands_.size()};
+    }
+
+    [[nodiscard]] std::size_t useCount(const Value* value) const noexcept;
+
+    [[nodiscard]] bool uses(const Value* value) const noexcept;
+
+    void replaceIfUsed(const Value* to_replace, Value* replace_with) noexcept;
+
   protected:
+    Instruction() = default;
+
+    Instruction(const Instruction&) = default;
+
+    Instruction(Instruction&&) = default;
+
+    Instruction& operator=(const Instruction&) = default;
+
+    Instruction& operator=(Instruction&&) = default;
+
     template <typename T>
     Instruction(T* ptr, Type* ty, std::initializer_list<Value*> operands) noexcept
         : Value(ptr, ty),

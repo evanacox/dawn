@@ -14,15 +14,19 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
+#include "dawn/ir/internal/function_manager.h"
 #include "dawn/utility/assertions.h"
-#include "gtest/gtest.h"
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
-  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
-  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
-}
+namespace dawn {
+  Function* FunctionManager::get_if_exists(std::string_view name) const noexcept {
+    auto it = functions_.find(name);
 
-TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
-  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
-}
+    return it == functions_.end() ? nullptr : it->second.get();
+  }
+
+  Function* FunctionManager::create(std::string name, Type* ty) noexcept {
+    DAWN_ASSERT(!contains(name), "cannot create two functions with the same name");
+
+    return functions_.emplace(name, std::make_unique<Function>(name, ty)).first->second.get();
+  }
+} // namespace dawn
