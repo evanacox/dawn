@@ -20,7 +20,9 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(dawn_test
+add_dawn_executable(dawn_unittests
+        DEPENDS dawn::dawn GTest::gtest GTest::gtest_main
+        FILES
         ./sanity.cc
         ../dawn/ir/internal/type_manager.test.cc
         ../dawn/ir/types.test.cc
@@ -28,8 +30,6 @@ add_executable(dawn_test
         ../dawn/ir/instruction.test.cc
         ../dawn/ir/instructions.test.cc
         ../dawn/utility/apint.test.cc)
-target_link_libraries(dawn_test PRIVATE dawn::dawn GTest::gtest GTest::gtest_main)
-target_compile_features(dawn_test PRIVATE cxx_std_20)
 
 include(GoogleTest)
-gtest_discover_tests(dawn_test)
+gtest_discover_tests(dawn_unittests)

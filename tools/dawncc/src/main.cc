@@ -15,6 +15,7 @@
 //======---------------------------------------------------------------======//
 
 #include "absl/flags/parse.h"
+#include "dawn/dawn.h"
 
 int main(int argc, char** argv) {
   absl::ParseCommandLine(argc, argv);
