@@ -12,20 +12,27 @@ project(
 
 include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
+include(cmake/target-config.cmake)
 
 # ---- Declare library ----
 
 set(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(vendor/abseil-cpp)
 
-add_library(dawn_dawn
+add_dawn_library(dawn_dawn
+        ALIAS dawn::dawn
+        EXPORT_NAME dawn
+        DEPENDS absl::hash absl::strings absl::str_format absl::flat_hash_map
+        INCLUDES
+        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>"
+        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
+        FILES
         ./dawn/ir/internal/type_manager.cc
         ./dawn/ir/module.cc
         ./dawn/ir/types.cc
         ./dawn/utility/assertions.cc
         ./dawn/utility/apint.cc
         ./dawn/ir/instructions.cc)
-add_library(dawn::dawn ALIAS dawn_dawn)
 
 include(GenerateExportHeader)
 generate_export_header(
@@ -35,9 +42,9 @@ generate_export_header(
         EXPORT_FILE_NAME export/dawn/shared_export.h
 )
 
-if(NOT BUILD_SHARED_LIBS)
+if (NOT BUILD_SHARED_LIBS)
     target_compile_definitions(dawn_dawn PUBLIC DAWN_STATIC_DEFINE)
-endif()
+endif ()
 
 set_target_properties(
         dawn_dawn PROPERTIES
@@ -47,32 +54,6 @@ set_target_properties(
         SOVERSION "${PROJECT_VERSION_MAJOR}"
         EXPORT_NAME dawn
         OUTPUT_NAME dawn
-)
-
-target_include_directories(
-        dawn_dawn ${warning_guard}
-        PUBLIC
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>"
-)
-
-target_include_directories(
-        dawn_dawn SYSTEM
-        PUBLIC
-        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
-)
-
-target_link_libraries(dawn_dawn PUBLIC
-        absl::hash
-        absl::strings
-        absl::str_format
-        absl::flat_hash_map
-        )
-
-target_compile_features(dawn_dawn PUBLIC cxx_std_20)
-
-set_target_properties(dawn_dawn PROPERTIES
-        CXX_CLANG_TIDY "${DAWN_CXX_CLANG_TIDY}"
-        CXX_FLAGS "${DAWN_CXX_FLAGS}"
 )
 
 add_subdirectory(tools)
