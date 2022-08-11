@@ -17,11 +17,15 @@
 #include "dawn/ir/internal/function_manager.h"
 #include "dawn/utility/assertions.h"
 
-namespace dawn {
-  Function* FunctionManager::get_if_exists(std::string_view name) const noexcept {
+namespace dawn::internal {
+  OptionalPtr<Function> FunctionManager::getFunctionIfExists(std::string_view name) const noexcept {
     auto it = functions_.find(name);
 
-    return it == functions_.end() ? nullptr : it->second.get();
+    return it == functions_.end() ? dawn::none<Function>() : dawn::some(it->second.get());
+  }
+
+  bool FunctionManager::contains(std::string_view name) const noexcept {
+    return functions_.contains(name);
   }
 
   Function* FunctionManager::create(std::string name, Type* ty) noexcept {
@@ -29,4 +33,4 @@ namespace dawn {
 
     return functions_.emplace(name, std::make_unique<Function>(name, ty)).first->second.get();
   }
-} // namespace dawn
+} // namespace dawn::internal

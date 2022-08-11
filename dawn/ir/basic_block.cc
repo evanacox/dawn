@@ -26,14 +26,14 @@ namespace dawn {
     instructions_.push_back(inst);
   }
 
-  void BasicBlock::insertBefore(Instruction* before, Instruction* to_insert) noexcept {
+  void BasicBlock::insertBefore(const Instruction* before, Instruction* to_insert) noexcept {
     // NOLINTNEXTLINE(readability-qualified-auto)
     auto it = std::find(instructions_.begin(), instructions_.end(), before);
 
     instructions_.insert(it, to_insert);
   }
 
-  void BasicBlock::insertAfter(Instruction* after, Instruction* to_insert) noexcept {
+  void BasicBlock::insertAfter(const Instruction* after, Instruction* to_insert) noexcept {
     // NOLINTNEXTLINE(readability-qualified-auto)
     auto it = std::find(instructions_.begin(), instructions_.end(), after);
 

@@ -95,15 +95,27 @@ namespace dawn {
     [[nodiscard]] explicit CondBr(BasicBlock* if_true, Value* cond, BasicBlock* if_false) noexcept
         : TerminatorInst(this, if_true, {if_true, if_false}, {cond}) {}
 
-    [[nodiscard]] Value* cond() const noexcept {
+    [[nodiscard]] const Value* cond() const noexcept {
       return this->operands()[0];
     }
 
-    [[nodiscard]] BasicBlock* trueBranch() const noexcept {
+    [[nodiscard]] Value* cond() noexcept {
+      return this->operands()[0];
+    }
+
+    [[nodiscard]] const BasicBlock* trueBranch() const noexcept {
       return this->refs()[0];
     }
 
-    [[nodiscard]] BasicBlock* falseBranch() const noexcept {
+    [[nodiscard]] BasicBlock* trueBranch() noexcept {
+      return this->refs()[0];
+    }
+
+    [[nodiscard]] const BasicBlock* falseBranch() const noexcept {
+      return this->refs()[1];
+    }
+
+    [[nodiscard]] BasicBlock* falseBranch() noexcept {
       return this->refs()[1];
     }
 

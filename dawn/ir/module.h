@@ -20,10 +20,10 @@
 #include "../utility/bump_alloc.h"
 #include "./internal/function_manager.h"
 #include "./internal/type_manager.h"
-#include "./ir_builder.h"
-#include "./types.h"
 
 namespace dawn {
+  class IRBuilder;
+
   class DAWN_PUBLIC Module {
   public:
     Module();
@@ -102,9 +102,7 @@ namespace dawn {
       return fns_.create(std::move(name), ty);
     }
 
-    [[nodiscard]] IRBuilder builder() noexcept {
-      return IRBuilder(&pool_, this);
-    }
+    [[nodiscard]] std::unique_ptr<IRBuilder> builder() noexcept;
 
   private:
     BumpAlloc pool_;

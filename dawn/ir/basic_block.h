@@ -43,9 +43,9 @@ namespace dawn {
 
     void append(Instruction* inst) noexcept;
 
-    void insertBefore(Instruction* before, Instruction* to_insert) noexcept;
+    void insertBefore(const Instruction* before, Instruction* to_insert) noexcept;
 
-    void insertAfter(Instruction* after, Instruction* to_insert) noexcept;
+    void insertAfter(const Instruction* after, Instruction* to_insert) noexcept;
 
   private:
     // 6 makes the size be exactly 8 words, i.e. exactly one normal cache line in size.

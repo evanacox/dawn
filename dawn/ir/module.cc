@@ -16,6 +16,12 @@
 
 #include "dawn/ir/module.h"
 #include "dawn/ir/internal/type_manager.h"
+#include "dawn/ir/ir_builder.h"
 #include "dawn/ir/types.h"
+#include <memory>
 
-namespace dawn {} // namespace dawn
+namespace dawn {
+  std::unique_ptr<IRBuilder> Module::builder() noexcept {
+    return std::make_unique<IRBuilder>(&pool_, this);
+  }
+} // namespace dawn
