@@ -17,7 +17,6 @@
 #include "dawn/ir/basic_block.h"
 
 namespace dawn {
-
   void BasicBlock::prepend(Instruction* inst) noexcept {
     instructions_.insert(instructions_.begin(), inst);
   }

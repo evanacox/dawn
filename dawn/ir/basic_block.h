@@ -25,9 +25,9 @@ namespace dawn {
 
   class BasicBlock {
   public:
-    [[nodiscard]] explicit BasicBlock(Module* parent) noexcept : parent_{parent} {}
+    [[nodiscard]] explicit BasicBlock(class Function* parent) noexcept : parent_{parent} {}
 
-    [[nodiscard]] Module* parent() const noexcept {
+    [[nodiscard]] class Function* parent() const noexcept {
       return parent_;
     }
 
@@ -50,9 +50,9 @@ namespace dawn {
   private:
     // 6 makes the size be exactly 8 words, i.e. exactly one normal cache line in size.
     // on any architectures with 128byte cache line, two fit perfectly
-    inline constexpr static std::size_t small_size = 6;
+    inline constexpr static std::size_t smallSize = 6;
 
-    Module* parent_;
-    absl::InlinedVector<Instruction*, small_size> instructions_;
+    class Function* parent_;
+    absl::InlinedVector<Instruction*, smallSize> instructions_;
   };
 } // namespace dawn
