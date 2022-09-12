@@ -14,24 +14,40 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#pragma once
+#include "dawn/adt/deep_hash_table.h"
+#include "dawn/ir.h"
+#include "gtest/gtest.h"
+#include <memory>
 
-#include "../ir/value.h"
-#include "../utility/deref_hashable.h"
-#include "absl/container/flat_hash_set.h"
+TEST(DawnADTDeepHashTable, SetWorks) {
+  dawn::DeepHashSet<std::unique_ptr<int>> table;
 
-namespace dawn {
-  /// Used for instruction de-duplication. Equivalent
-  /// values hash to the same
-  class ValueSet {
-  public:
-    ValueSet() = default;
+  // equivalent constants with **different addresses**
+  auto one = std::make_unique<int>(1);
+  auto two = std::make_unique<int>(1);
+  table.insert(std::move(one));
 
-    [[nodiscard]] Value* put(Value* value) noexcept {
-      return *values_.insert(value).first;
-    }
+  // can search from the unique_ptr by itself
+  EXPECT_TRUE(table.contains(two));
+  EXPECT_NE(table.find(two), table.end());
 
-  private:
-    absl::flat_hash_set<DerefHashable<Value>> values_;
-  };
-} // namespace dawn
+  // can search from pointer to equivalent object
+  EXPECT_TRUE(table.contains(two.get()));
+  EXPECT_NE(table.find(two.get()), table.end());
+}
+
+TEST(DawnADTDeepHashTable, MapWorks) {
+  dawn::DeepHashMap<int*, double> table;
+
+  // equivalent constants with **different addresses**
+  auto* one = new int(1);
+  auto* two = new int(1);
+  table.emplace(one, 0.0);
+
+  // can search from pointer to equivalent object
+  EXPECT_TRUE(table.contains(two));
+  EXPECT_NE(table.find(two), table.end());
+
+  delete one;
+  delete two;
+}
