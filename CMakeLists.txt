@@ -16,6 +16,7 @@ include(cmake/target-config.cmake)
 
 # ---- Declare library ----
 
+set(ABSL_USE_SYSTEM_INCLUDES ON)
 set(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(vendor/abseil-cpp)
 
