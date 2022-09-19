@@ -14,18 +14,65 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/instruction.h"
+#pragma once
+
+#include <utility>
 
 namespace dawn {
-  std::size_t Instruction::useCount(const Value* value) const noexcept {
-    return static_cast<std::size_t>(std::count(operands_.begin(), operands_.end(), value));
-  }
+  template <typename T> struct ReplaceWith {
+    template <typename... Args> explicit ReplaceWith(Args&&... args) : value{std::forward<Args>(args)...} {}
 
-  bool Instruction::uses(const Value* value) const noexcept {
-    return std::find(operands_.begin(), operands_.end(), value) != operands_.end();
-  }
+    T value;
+  };
 
-  void Instruction::replaceOperandWith(const Value* old_operand, ReplaceWith<Value*> new_operand) noexcept {
-    std::replace(operands_.begin(), operands_.end(), const_cast<Value*>(old_operand), new_operand.value);
-  }
+  class BasicBlock;
+  class Value;
+
+  struct TrueBranch {
+    explicit TrueBranch(BasicBlock* target) noexcept : target{target} {}
+
+    BasicBlock* target; // NOLINT
+  };
+
+  struct FalseBranch {
+    explicit FalseBranch(BasicBlock* target) noexcept : target{target} {}
+
+    BasicBlock* target; // NOLINT
+  };
+
+  struct If {
+    explicit If(Value* val) noexcept : val{val} {}
+
+    Value* val; // NOLINT
+  };
+
+  struct Else {
+    explicit Else(Value* val) noexcept : val{val} {}
+
+    Value* val; // NOLINT
+  };
+
+  struct Dest {
+    explicit Dest(Value* val) noexcept : val{val} {}
+
+    Value* val; // NOLINT
+  };
+
+  struct Source {
+    explicit Source(Value* val) noexcept : val{val} {}
+
+    Value* val; // NOLINT
+  };
+
+  struct Index {
+    explicit Index(Value* val) noexcept : val{val} {}
+
+    Value* val; // NOLINT
+  };
+
+  struct Agg {
+    explicit Agg(Value* val) noexcept : val{val} {}
+
+    Value* val; // NOLINT
+  };
 } // namespace dawn

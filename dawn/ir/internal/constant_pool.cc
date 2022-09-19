@@ -14,22 +14,8 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#pragma once
+#include "dawn/ir/internal/constant_pool.h"
 
-namespace dawn {
-  template <typename T> class DerefHashable final {
-  public:
-    DerefHashable(T* object) noexcept : obj_{object} {} // NOLINT(google-explicit-constructor)
+namespace dawn::internal {
 
-    template <typename H> friend H AbslHashValue(H state, const DerefHashable& object) {
-      return H::combine(std::move(state), *object.obj_);
-    }
-
-    [[nodiscard]] operator T*() const noexcept { // NOLINT(google-explicit-constructor)
-      return obj_;
-    }
-
-  private:
-    T* obj_;
-  };
-} // namespace dawn
+}

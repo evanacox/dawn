@@ -1,0 +1,41 @@
+func i32 @one(i32 $0) {
+%entry:
+    $1 = imul i32 $0, 4982
+    $2 = xor i32 $1, 68291
+    $3 = fmul f64 0xfp3FBFD40EE06D9381, 0x0.1p4
+    $4 = fmul f64 0.12, 1.30945e+5
+    $5 = fdiv f64 $3, $4
+    $6 = iadd i32 0b1111, 0o773
+    $7 = imul i32 81, 0xffFf
+    $8 = icmp ne i32 12, $7
+    ret i32 $2
+}
+
+; hello
+;heowijeow
+;        a
+decl void @printf([i8, 16] $0)
+
+func f64 @sin(f64 $0) {
+%a:
+    $1 = fcmp ord f64 $0, 0.1 ;hest
+    call void @printf([i8, 16] "abcdabcdabcdabcd")
+    cbr bool $1, if %if.true, else %if.false
+
+%if.true:
+    ret f64 $0
+
+%if.false:
+    unreachable
+}
+
+func f32 @f(f32 $0) {
+%entry:
+    br %
+
+%:
+    unreachable
+
+%:
+    unreachable
+}

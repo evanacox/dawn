@@ -16,10 +16,10 @@
 
 #pragma once
 
+#include "../../adt/deep_hash_table.h"
 #include "../../utility/bump_alloc.h"
-#include "../../utility/deref_hashable.h"
 #include "../types.h"
-#include "absl/container/flat_hash_set.h"
+#include <span>
 
 namespace dawn::internal {
   class TypeManager final {
@@ -62,12 +62,13 @@ namespace dawn::internal {
 
     [[nodiscard]] Type* array(BumpAlloc* alloc, Type* element, std::uint64_t length) noexcept;
 
-    [[nodiscard]] Type* structure(BumpAlloc* alloc, std::span<Type*> fields) noexcept;
+    [[nodiscard]] Type* structure(BumpAlloc* alloc, std::span<Type* const> fields) noexcept;
 
   private:
     Type* insertUnique(BumpPtr<Type> ty) noexcept;
 
-    absl::flat_hash_set<DerefHashable<Type>> types_;
+    // some types live at fixed offsets, its faster for them to live in the array normally
     std::vector<BumpPtr<Type>> owned_;
+    dawn::DeepHashSet<Type*> types_;
   };
 } // namespace dawn::internal

@@ -21,15 +21,19 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_dawn_executable(dawn_unittests
-        DEPENDS dawn::dawn GTest::gtest GTest::gtest_main
+        DEPENDS dawn::dawn GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
+        INCLUDES ./
         FILES
+        ./helpers/random.cc
         ./sanity.cc
         ../dawn/ir/internal/type_manager.test.cc
         ../dawn/ir/types.test.cc
         ../dawn/utility/assertions.test.cc
         ../dawn/ir/instruction.test.cc
         ../dawn/ir/instructions.test.cc
-        ../dawn/utility/apint.test.cc)
+        ../dawn/utility/apint.test.cc
+        ../dawn/adt/deep_hash_table.test.cc
+        ../dawn/ir/module.test.cc)
 
 include(GoogleTest)
 gtest_discover_tests(dawn_unittests)

@@ -24,56 +24,73 @@ namespace dawn {
   class Module;
 
   enum class ValueKind {
-    phi_inst,
-    inst_begin = phi_inst,
-    terminators_inst_begin = phi_inst,
-    br_inst,
-    cbr_inst,
-    switch_inst,
-    unreachable_inst,
-    terminators_inst_end = unreachable_inst,
-    and_inst,
-    binary_inst_begin = and_inst,
-    or_inst,
-    xor_inst,
-    shl_inst,
-    lshr_inst,
-    ashr_inst,
-    iadd_inst,
-    isub_inst,
-    imul_inst,
-    udiv_inst,
-    sdiv_inst,
-    urem_inst,
-    srem_inst,
-    fneg_inst,
-    fadd_inst,
-    fsub_inst,
-    fmul_inst,
-    fdiv_inst,
-    frem_inst,
-    binary_inst_end = frem_inst,
-    load_inst,
-    store_inst,
-    offset_inst,
-    extract_inst,
-    insert_inst,
-    ptrinto_inst,
-    itob_inst,
-    btoi_inst,
-    itof_inst,
-    ftoi_inst,
-    itop_inst,
-    ptoi_inst,
-    inst_end = ptoi_inst,
+    phiInst,
+    instBegin = phiInst,
+    callInst,
+    selInst,
+    brInst,
+    terminatorsInstBegin = brInst,
+    cbrInst,
+    switchInst,
+    retInst,
+    unreachableInst,
+    terminatorsInstEnd = unreachableInst,
+    andInst,
+    binaryInstBegin = andInst,
+    orInst,
+    xorInst,
+    shlInst,
+    lshrInst,
+    ashrInst,
+    iaddInst,
+    isubInst,
+    imulInst,
+    udivInst,
+    sdivInst,
+    uremInst,
+    sremInst,
+    fnegInst,
+    faddInst,
+    fsubInst,
+    fmulInst,
+    fdivInst,
+    fremInst,
+    icmpInst,
+    fcmpInst,
+    binaryInstEnd = fcmpInst,
+    allocaInst,
+    loadInst,
+    storeInst,
+    offsetInst,
+    extractInst,
+    insertInst,
+    elemptrInst,
+    sextInst,
+    conversionInstBegin = sextInst,
+    zextInst,
+    truncInst,
+    itobInst,
+    btoiInst,
+    sitofInst,
+    uitofInst,
+    ftosiInst,
+    ftouiInst,
+    itopInst,
+    ptoiInst,
+    conversionInstEnd = ptoiInst,
+    instEnd = ptoiInst,
     global,
-    const_int,
-    const_begin = const_int,
-    const_fp,
-    const_arr,
-    const_struct,
-    const_null,
-    const_end = const_null
+    constInt,
+    constBegin = constInt,
+    constFP,
+    constArray,
+    constStruct,
+    constNull,
+    constBool,
+    constUndef,
+    constString,
+    constEnd = constString,
+    argument
   };
 
   class DAWN_PUBLIC Value {
@@ -90,6 +107,10 @@ namespace dawn {
 
     [[nodiscard]] Module* module() const noexcept {
       return ty_->module();
+    }
+
+    [[nodiscard]] friend bool operator==(const Value& val1, const Value& val2) noexcept {
+      return val1.kind() == val2.kind() && val1.equals(&val2);
     }
 
     template <typename H> friend H AbslHashValue(H state, const Value& value) {
@@ -112,6 +133,9 @@ namespace dawn {
     template <typename T> explicit Value(T* /*unused*/, Type* ty) noexcept : kind_{T::kind}, ty_{ty} {}
 
     virtual void hash(absl::HashState state) const noexcept = 0;
+
+    // invariant: `val->kind() == this->kind()`
+    [[nodiscard]] virtual bool equals(const Value* val) const noexcept = 0;
 
   private:
     ValueKind kind_;

@@ -19,7 +19,7 @@
 #include <typeinfo>
 
 namespace {
-  std::vector<dawn::Type*> from_span(std::span<dawn::Type*> view) noexcept {
+  std::vector<dawn::Type*> from_span(std::span<dawn::Type* const> view) noexcept {
     std::vector<dawn::Type*> result{view.size(), nullptr};
 
     std::copy(view.begin(), view.end(), result.begin());
@@ -31,7 +31,7 @@ namespace {
 namespace dawn {
   Struct::Struct(std::vector<dawn::Type*> fields) noexcept : Type(this), fields_{std::move(fields)} {}
 
-  Struct::Struct(std::span<dawn::Type*> fields) noexcept : Type(this), fields_{from_span(fields)} {}
+  Struct::Struct(std::span<dawn::Type* const> fields) noexcept : Type(this), fields_{from_span(fields)} {}
 
   void Int::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Int)}, width_);

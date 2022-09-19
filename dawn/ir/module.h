@@ -18,12 +18,12 @@
 
 #include "../config.h"
 #include "../utility/bump_alloc.h"
+#include "./internal/constant_pool.h"
 #include "./internal/function_manager.h"
+#include "./internal/instruction_manager.h"
 #include "./internal/type_manager.h"
 
 namespace dawn {
-  class IRBuilder;
-
   class DAWN_PUBLIC Module {
   public:
     Module();
@@ -86,7 +86,7 @@ namespace dawn {
       return tys_.array(&pool_, element, length);
     }
 
-    [[nodiscard]] Type* structure(std::span<Type*> fields) noexcept {
+    [[nodiscard]] Type* structure(std::span<Type* const> fields) noexcept {
       return tys_.structure(&pool_, fields);
     }
 
@@ -94,19 +94,53 @@ namespace dawn {
       return tys_.voidType();
     }
 
-    [[nodiscard]] OptionalPtr<Function> findFunction(std::string_view name) const noexcept {
+    [[nodiscard]] OptionalPtr<Function> findFunc(std::string_view name) const noexcept {
       return fns_.getFunctionIfExists(name);
     }
 
-    [[nodiscard]] Function* createFunction(std::string name, Type* ty) noexcept {
-      return fns_.create(std::move(name), ty);
+    [[nodiscard]] Function* createFunc(std::string name, Type* ty, std::span<Argument> args) noexcept {
+      return fns_.create(this, std::move(name), ty, args);
     }
 
-    [[nodiscard]] std::unique_ptr<IRBuilder> builder() noexcept;
+    [[nodiscard]] Function* findOrCreateFunc(std::string name, Type* ty, std::span<Argument> args) noexcept {
+      if (auto fn = findFunc(name)) {
+        auto fnArgs = fn->args();
+
+        DAWN_ASSERT(fn->returnTy() == ty, "can only findOrCreateFunc with same return type");
+        DAWN_ASSERT(std::equal(args.begin(), args.end(), fnArgs.begin(), fnArgs.end()),
+            "arguments for function must be identical");
+
+        return fn.get();
+      }
+
+      return createFunc(std::move(name), ty, args);
+    }
+
+    [[nodiscard]] internal::ReadonlyFunctionRange allFunctions() const noexcept {
+      return internal::ReadonlyFunctionRange(&fns_);
+    }
+
+    [[nodiscard]] internal::FunctionRange allFunctions() noexcept {
+      return internal::FunctionRange(&fns_);
+    }
+
+    friend bool deepEquals(const Module& lhs, const Module& rhs) noexcept;
 
   private:
+    friend class IRBuilder;
+
     BumpAlloc pool_;
     internal::TypeManager tys_;
     internal::FunctionManager fns_;
+    internal::InstructionManager instructions_;
+    internal::ConstantPool constants_;
   };
+
+  /// Checks that two modules are *equivalent* (not binary equal, key distinction)
+  /// to each-other.
+  ///
+  /// \param lhs
+  /// \param rhs
+  /// \return
+  bool deepEquals(const Module& lhs, const Module& rhs) noexcept;
 } // namespace dawn

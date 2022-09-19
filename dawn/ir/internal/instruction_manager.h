@@ -16,55 +16,30 @@
 
 #pragma once
 
-#include "../../adt/optional_ptr.h"
-#include "../function.h"
+#include "../../utility/assertions.h"
+#include "../../utility/bump_alloc.h"
+#include "../instruction.h"
 #include "absl/container/flat_hash_map.h"
+#include "absl/container/flat_hash_set.h"
 
 namespace dawn::internal {
-  class FunctionManager {
+  class InstructionManager {
   public:
-    [[nodiscard]] OptionalPtr<Function> getFunctionIfExists(std::string_view name) const noexcept;
+    void insert(BumpPtr<Instruction> ptr) noexcept {
+      instructions_.insert(std::move(ptr));
+    }
 
-    [[nodiscard]] bool contains(std::string_view name) const noexcept;
+    void remove(Instruction* to_remove) noexcept {
+      DAWN_ASSERT(instructions_.contains(to_remove), "cannot remove non-existent instruction");
 
-    [[nodiscard]] Function* create(class Module* mod, std::string name, Type* ty, std::span<Argument> args) noexcept;
+      instructions_.erase(to_remove);
+    }
+
+    [[nodiscard]] std::size_t useCount(Instruction* inst) const noexcept;
+
+    [[nodiscard]] absl::flat_hash_map<Instruction*, std::size_t> useCountOfEveryInst() const noexcept;
 
   private:
-    friend class FunctionRange;
-    friend class ReadonlyFunctionRange;
-
-    absl::flat_hash_map<std::string, std::unique_ptr<Function>> functions_;
-  };
-
-  class FunctionRange {
-  public:
-    explicit FunctionRange(FunctionManager* manager) : fn_manager_{manager} {}
-
-    decltype(auto) begin() {
-      return fn_manager_->functions_.begin();
-    }
-
-    decltype(auto) end() {
-      return fn_manager_->functions_.end();
-    }
-
-  private:
-    FunctionManager* fn_manager_;
-  };
-
-  class ReadonlyFunctionRange {
-  public:
-    explicit ReadonlyFunctionRange(const FunctionManager* manager) : fn_manager_{manager} {}
-
-    decltype(auto) begin() {
-      return fn_manager_->functions_.begin();
-    }
-
-    decltype(auto) end() {
-      return fn_manager_->functions_.end();
-    }
-
-  private:
-    const FunctionManager* fn_manager_;
+    absl::flat_hash_set<BumpPtr<Instruction>> instructions_;
   };
 } // namespace dawn::internal

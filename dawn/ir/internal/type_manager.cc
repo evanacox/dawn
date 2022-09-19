@@ -18,7 +18,7 @@
 #include "dawn/ir/types.h"
 #include "dawn/utility/assertions.h"
 
-enum class TypeIndex { i8 = 0, i16, i32, i64, boolean, ptr, f32, f64, empty_struct, void_type };
+enum class TypeIndex { i8 = 0, i16, i32, i64, boolean, ptr, f32, f64, emptyStruct, voidType };
 
 namespace dawn::internal {
   TypeManager::TypeManager(BumpAlloc* alloc) noexcept {
@@ -78,7 +78,7 @@ namespace dawn::internal {
   }
 
   [[nodiscard]] Type* TypeManager::emptyStruct() const noexcept {
-    return owned_[static_cast<int>(TypeIndex::empty_struct)].get();
+    return owned_[static_cast<int>(TypeIndex::emptyStruct)].get();
   }
 
   Type* TypeManager::intOfWidth(std::uint64_t width) const noexcept {
@@ -110,12 +110,11 @@ namespace dawn::internal {
     return insertUnique(alloc->alloc<Array>(std::move(ty)));
   }
 
-  Type* TypeManager::structure(BumpAlloc* alloc, std::span<Type*> fields) noexcept {
+  Type* TypeManager::structure(BumpAlloc* alloc, std::span<Type* const> fields) noexcept {
     auto ty = Struct{fields};
-    auto iter = types_.find(&ty);
 
-    if (iter != types_.end()) {
-      return *iter;
+    if (auto it = types_.find(&ty); it != types_.end()) {
+      return *it;
     }
 
     return insertUnique(alloc->alloc<Struct>(std::move(ty)));
@@ -131,6 +130,6 @@ namespace dawn::internal {
   }
 
   Type* TypeManager::voidType() const noexcept {
-    return owned_[static_cast<int>(TypeIndex::void_type)].get();
+    return owned_[static_cast<int>(TypeIndex::voidType)].get();
   }
 } // namespace dawn::internal

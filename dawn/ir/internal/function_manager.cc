@@ -28,9 +28,9 @@ namespace dawn::internal {
     return functions_.contains(name);
   }
 
-  Function* FunctionManager::create(std::string name, Type* ty) noexcept {
+  Function* FunctionManager::create(Module* mod, std::string name, Type* ty, std::span<Argument> args) noexcept {
     DAWN_ASSERT(!contains(name), "cannot create two functions with the same name");
 
-    return functions_.emplace(name, std::make_unique<Function>(name, ty)).first->second.get();
+    return functions_.emplace(name, std::make_unique<Function>(mod, name, ty, args)).first->second.get();
   }
 } // namespace dawn::internal

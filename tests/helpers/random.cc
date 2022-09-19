@@ -14,18 +14,26 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/instruction.h"
+#include "helpers/random.h"
+#include "dawn/utility/assertions.h"
+#include <random>
 
 namespace dawn {
-  std::size_t Instruction::useCount(const Value* value) const noexcept {
-    return static_cast<std::size_t>(std::count(operands_.begin(), operands_.end(), value));
+  std::size_t tests::randomBetween(std::pair<std::size_t, std::size_t> range) noexcept {
+    static auto randomDevice = std::random_device{};
+    static auto seed = std::seed_seq{randomDevice(), randomDevice(), randomDevice(), randomDevice(), randomDevice()};
+    static auto rng = std::mt19937_64{seed};
+
+    return std::uniform_int_distribution{range.first, range.second}(rng);
   }
 
-  bool Instruction::uses(const Value* value) const noexcept {
-    return std::find(operands_.begin(), operands_.end(), value) != operands_.end();
-  }
+  std::size_t tests::randomBetweenButNot(std::pair<std::size_t, std::size_t> range, std::size_t exclude) noexcept {
+    while (true) {
+      if (auto value = randomBetween(range); value != exclude) {
+        return value;
+      }
+    }
 
-  void Instruction::replaceOperandWith(const Value* old_operand, ReplaceWith<Value*> new_operand) noexcept {
-    std::replace(operands_.begin(), operands_.end(), const_cast<Value*>(old_operand), new_operand.value);
+    DAWN_UNREACHABLE("loop cannot exit except by returning");
   }
 } // namespace dawn

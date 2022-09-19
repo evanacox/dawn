@@ -14,18 +14,25 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/instruction.h"
+#pragma once
+
+#include "./module.h"
+#include <memory>
+#include <ostream>
+#include <variant>
 
 namespace dawn {
-  std::size_t Instruction::useCount(const Value* value) const noexcept {
-    return static_cast<std::size_t>(std::count(operands_.begin(), operands_.end(), value));
-  }
+  std::variant<std::unique_ptr<Module>, std::string> parseIRFromText(std::string_view source) noexcept;
 
-  bool Instruction::uses(const Value* value) const noexcept {
-    return std::find(operands_.begin(), operands_.end(), value) != operands_.end();
-  }
+  inline std::optional<std::unique_ptr<Module>> tryParseIR(std::string_view source, std::ostream* onError) noexcept {
+    auto result = parseIRFromText(source);
 
-  void Instruction::replaceOperandWith(const Value* old_operand, ReplaceWith<Value*> new_operand) noexcept {
-    std::replace(operands_.begin(), operands_.end(), const_cast<Value*>(old_operand), new_operand.value);
+    if (auto* err = std::get_if<std::string>(&result)) {
+      *onError << err << '\n';
+
+      return std::nullopt;
+    }
+
+    return std::make_optional(std::get<std::unique_ptr<Module>>(std::move(result)));
   }
 } // namespace dawn

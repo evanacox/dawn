@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../config.h"
+#include "../utility/apint.h"
 #include "../utility/assertions.h"
 #include "../utility/rtti.h"
 #include "absl/hash/hash.h"
@@ -36,7 +37,7 @@ namespace dawn {
   class Module;
 
   namespace internal {
-    enum class TypeKind { integer, floating_point, boolean, ptr, array, structure, void_unit };
+    enum class TypeKind { integer, floatingPoint, boolean, ptr, array, structure, voidUnit };
   } // namespace internal
 
   class DAWN_PUBLIC Type {
@@ -81,11 +82,15 @@ namespace dawn {
 
     [[nodiscard]] constexpr explicit Int(std::uint64_t width) noexcept : Type(this), width_{width} {
       DAWN_ASSERT(std::has_single_bit(width_), "integers can only have powers of two as their size");
-      DAWN_ASSERT(8 <= width && width <= 64, "integer width must be in the range [8, 64]");
+      DAWN_ASSERT(width >= 8 && width <= 64, "integer width must be in the range [8, 64]");
     }
 
-    [[nodiscard]] constexpr std::uint64_t width() const noexcept {
+    [[nodiscard]] constexpr std::uint64_t rawWidth() const noexcept {
       return width_;
+    }
+
+    [[nodiscard]] constexpr Width width() const noexcept {
+      return static_cast<Width>(width_);
     }
 
   protected:
@@ -99,7 +104,7 @@ namespace dawn {
 
   class DAWN_PUBLIC Float final : public Type {
   public:
-    inline constexpr static internal::TypeKind kind = internal::TypeKind::floating_point;
+    inline constexpr static internal::TypeKind kind = internal::TypeKind::floatingPoint;
 
     [[nodiscard]] constexpr explicit Float(std::uint64_t width) noexcept : Type(this), width_{width} {
       DAWN_ASSERT(width == 32 || width == 64, "only `binary32` and `binary64` IEEE floats are supported");
@@ -174,7 +179,7 @@ namespace dawn {
 
     [[nodiscard]] explicit Struct(std::vector<Type*> fields) noexcept;
 
-    [[nodiscard]] explicit Struct(std::span<Type*> fields) noexcept;
+    [[nodiscard]] explicit Struct(std::span<Type* const> fields) noexcept;
 
     [[nodiscard]] std::span<Type* const> fields() const noexcept {
       return std::span{fields_.data(), fields_.size()};
@@ -191,7 +196,7 @@ namespace dawn {
 
   class DAWN_PUBLIC Void final : public Type {
   public:
-    inline constexpr static internal::TypeKind kind = internal::TypeKind::void_unit;
+    inline constexpr static internal::TypeKind kind = internal::TypeKind::voidUnit;
 
     [[nodiscard]] constexpr Void() noexcept : Type(this) {}
 

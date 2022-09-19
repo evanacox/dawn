@@ -14,27 +14,31 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#pragma once
-
-#include "absl/hash/hash.h"
-#include <cstddef>
-#include <utility>
+#include "dawn/ir/internal/instruction_manager.h"
+#include "absl/container/flat_hash_map.h"
 
 namespace dawn::internal {
-  template <typename T, typename Hasher> class CachedHash {
-  public:
-    template <typename... Args>
-    /*implicit*/ CachedHash(Args&&... args) // NOLINT(google-explicit-constructor)
-        : object_{std::forward<Args>(args)...} {
-      hash_ = Hasher{}(object_);
+  absl::flat_hash_map<Instruction*, std::size_t> InstructionManager::useCountOfEveryInst() const noexcept {
+    auto counts = absl::flat_hash_map<Instruction*, std::size_t>{};
+
+    for (const auto& inst : instructions_) {
+      for (auto* operand : inst->operands()) {
+        if (auto ptr = dawn::dyncast<Instruction>(operand)) {
+          ++counts[ptr.get()];
+        }
+      }
     }
 
-    template <typename H> friend H AbslHashValue(H h, const CachedHash& c) {
-      return H::combine(std::move(h), c.hash_);
+    return counts;
+  }
+
+  std::size_t InstructionManager::useCount(Instruction* inst) const noexcept {
+    auto count = std::size_t{0};
+
+    for (const auto& instruction : instructions_) {
+      count += instruction->useCount(inst);
     }
 
-  private:
-    std::size_t hash_;
-    T object_;
-  };
+    return count;
+  }
 } // namespace dawn::internal

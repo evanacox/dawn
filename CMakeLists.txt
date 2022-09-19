@@ -36,10 +36,17 @@ add_dawn_library(dawn_dawn
         ./dawn/ir/instructions.cc
         ./dawn/ir/instruction.cc
         ./dawn/ir/basic_block.cc
-        ./dawn/ir/ir_builder.cc 
-        ./dawn/ir/function.cc 
+        ./dawn/ir/ir_builder.cc
+        ./dawn/ir/function.cc
         ./dawn/ir/internal/type_manager.cc
-        ./dawn/ir/internal/function_manager.cc)
+        ./dawn/ir/internal/function_manager.cc
+        ./dawn/ir/internal/instruction_manager.cc
+        ./dawn/ir/constant.cc
+        ./dawn/ir/internal/constant_pool.cc
+        ./dawn/ir/ir_writer.cc
+        ./dawn/ir/ir_reader.cc
+        ./dawn/utility/file.cc
+        ./dawn/analysis/cfg_edges.cc)
 
 include(GenerateExportHeader)
 generate_export_header(

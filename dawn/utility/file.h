@@ -14,18 +14,12 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/instruction.h"
+#pragma once
+
+#include <optional>
+#include <string>
+#include <string_view>
 
 namespace dawn {
-  std::size_t Instruction::useCount(const Value* value) const noexcept {
-    return static_cast<std::size_t>(std::count(operands_.begin(), operands_.end(), value));
-  }
-
-  bool Instruction::uses(const Value* value) const noexcept {
-    return std::find(operands_.begin(), operands_.end(), value) != operands_.end();
-  }
-
-  void Instruction::replaceOperandWith(const Value* old_operand, ReplaceWith<Value*> new_operand) noexcept {
-    std::replace(operands_.begin(), operands_.end(), const_cast<Value*>(old_operand), new_operand.value);
-  }
-} // namespace dawn
+  std::optional<std::string> readEntireFile(std::string_view filename) noexcept;
+}

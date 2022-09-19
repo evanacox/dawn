@@ -1,0 +1,3 @@
+command script import ./scripts/lldb/std_pretty_printers.py
+command script import ./scripts/lldb/pretty_printers.py
+command script import ./scripts/lldb/absl_pretty_printers.py

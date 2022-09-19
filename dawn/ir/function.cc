@@ -1,3 +1,5 @@
+#include "value.h"
+#include <absl/hash/hash.h>
 //======---------------------------------------------------------------======//
 // Copyright (c) 2022 Evan Cox <evanacox00@gmail.com>.                       //
 //                                                                           //
@@ -13,3 +15,17 @@
 // See the License for the specific language governing permissions and       //
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
+
+#include "dawn/ir/function.h"
+#include <typeindex>
+#include <typeinfo>
+
+namespace dawn {
+  void Argument::hash(absl::HashState state) const noexcept {
+    absl::HashState::combine(std::move(state), std::type_index{typeid(Argument)}, offset_);
+  }
+
+  bool Argument::equals(const Value* val) const noexcept {
+    return dawn::dyncastUnchecked<const Argument>(val)->offset() == offset();
+  }
+} // namespace dawn

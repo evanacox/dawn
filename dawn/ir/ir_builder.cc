@@ -15,10 +15,35 @@
 //======---------------------------------------------------------------======//
 
 #include "dawn/ir/ir_builder.h"
-#include "dawn/ir/instructions.h"
+#include "absl/container/inlined_vector.h"
+#include "dawn/ir/module.h"
 
 namespace dawn {
-  void IRBuilder::createIAdd(Value* lhs, Value* rhs) noexcept {
-    pool_->alloc<IAdd>(lhs, rhs);
+  IRBuilder::IRBuilder(Module* mod) noexcept : pool_{&mod->pool_}, mod_{mod} {}
+
+  ConstantStruct* IRBuilder::constStruct(std::span<Constant* const> vals) noexcept {
+    auto vec = absl::InlinedVector<Type*, 16>{};
+    vec.reserve(vals.size());
+
+    for (const auto* val : vals) {
+      vec.push_back(val->type());
+    }
+
+    return mod_->constants_.createOrGet<ConstantStruct>(&mod_->pool_, structTy(vec), vals);
+  }
+
+  Instruction* IRBuilder::insertInst(BumpPtr<Instruction> inst) noexcept {
+    DAWN_ASSERT(currentBlock(), "must have a block to insert into with `IRBuilder::insertInst`");
+
+    curr_block_->append(inst.get());
+    mod_->instructions_.insert(std::move(inst));
+
+    return curr_block_->instructions().back();
+  }
+
+  ConstantArray* IRBuilder::constArrayFill(Constant* val, std::size_t length) noexcept {
+    auto vec = absl::InlinedVector<Constant*, 128>{length, val};
+
+    return constArray(vec);
   }
 } // namespace dawn

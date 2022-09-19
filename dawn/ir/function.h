@@ -23,32 +23,99 @@
 #include <vector>
 
 namespace dawn {
-  class Function {
+  class Module;
+
+  class DAWN_PUBLIC Argument final : public Value {
   public:
-    [[nodiscard]] explicit Function(std::string name, Type* return_ty) noexcept
-        : name_{std::move(name)},
+    inline constexpr static ValueKind kind = ValueKind::argument;
+
+    explicit Argument(Type* ty, std::size_t offset) : Value(this, ty), offset_{offset} {}
+
+    [[nodiscard]] std::size_t offset() const noexcept {
+      return offset_;
+    }
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
+
+    bool equals(const Value* val) const noexcept final;
+
+  private:
+    std::size_t offset_;
+  };
+
+  class DAWN_PUBLIC Function {
+  public:
+    [[nodiscard]] explicit Function(Module* parent,
+        std::string name,
+        Type* return_ty,
+        std::span<Argument> args) noexcept
+        : parent_{parent},
+          args_{args.begin(), args.end()},
+          name_{std::move(name)},
           return_ty_{return_ty} {}
 
     [[nodiscard]] std::string_view name() const noexcept {
       return name_;
     }
 
-    [[nodiscard]] const BasicBlock* entry() const noexcept {
-      return &blocks_.front();
+    [[nodiscard]] OptionalPtr<const BasicBlock> entry() const noexcept {
+      if (!blocks_.empty()) {
+        return dawn::some(&blocks_.front());
+      }
+
+      return dawn::none<const BasicBlock>();
     }
 
-    [[nodiscard]] BasicBlock* entry() noexcept {
-      return &blocks_.front();
+    [[nodiscard]] OptionalPtr<BasicBlock> entry() noexcept {
+      if (!blocks_.empty()) {
+        return dawn::some(&blocks_.front());
+      }
+
+      return dawn::none<BasicBlock>();
     }
 
-    void addBlock(BasicBlock block) noexcept {
+    BasicBlock* addBlock(BasicBlock block) noexcept {
       blocks_.push_back(std::move(block));
+
+      return &blocks_.back();
+    }
+
+    [[nodiscard]] Type* returnTy() const noexcept {
+      return return_ty_;
+    }
+
+    [[nodiscard]] std::span<Argument> args() noexcept {
+      return args_;
+    }
+
+    [[nodiscard]] std::span<const Argument> args() const noexcept {
+      return args_;
+    }
+
+    [[nodiscard]] std::span<BasicBlock> blocks() noexcept {
+      return blocks_;
+    }
+
+    [[nodiscard]] std::span<const BasicBlock> blocks() const noexcept {
+      return blocks_;
+    }
+
+    [[nodiscard]] Module* parent() const noexcept {
+      return parent_;
+    }
+
+    [[nodiscard]] bool opaque() const noexcept {
+      return blocks().empty();
     }
 
   private:
+    Module* parent_;
+    // small functions (functions with just entry block, two possible branches and a merge point) like wrappers,
+    // straight-line functions, etc. fit in the inline buffer
+    absl::InlinedVector<BasicBlock, 4> blocks_;
+    absl::InlinedVector<Argument, 2> args_; // vast majority of functions have <= 2 arguments
     std::string name_;
     Type* return_ty_;
-    absl::InlinedVector<Type*, 2> args_;
-    std::vector<BasicBlock> blocks_;
   };
 } // namespace dawn

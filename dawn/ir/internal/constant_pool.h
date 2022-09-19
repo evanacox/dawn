@@ -16,55 +16,27 @@
 
 #pragma once
 
-#include "../../adt/optional_ptr.h"
-#include "../function.h"
-#include "absl/container/flat_hash_map.h"
+#include "../../adt/deep_hash_table.h"
+#include "../../utility/bump_alloc.h"
+#include "../constant.h"
+#include <utility>
 
 namespace dawn::internal {
-  class FunctionManager {
+  class ConstantPool {
   public:
-    [[nodiscard]] OptionalPtr<Function> getFunctionIfExists(std::string_view name) const noexcept;
+    template <typename T, typename... Args> [[nodiscard]] T* createOrGet(BumpAlloc* alloc, Args&&... args) noexcept {
+      auto constant = T{std::forward<Args>(args)...};
 
-    [[nodiscard]] bool contains(std::string_view name) const noexcept;
+      if (auto it = constants_.find(&constant); it != constants_.end()) {
+        return dawn::dyncastUnchecked<T>(it->get());
+      }
 
-    [[nodiscard]] Function* create(class Module* mod, std::string name, Type* ty, std::span<Argument> args) noexcept;
+      auto [it, _] = constants_.insert(alloc->alloc<T>(std::move(constant)));
 
-  private:
-    friend class FunctionRange;
-    friend class ReadonlyFunctionRange;
-
-    absl::flat_hash_map<std::string, std::unique_ptr<Function>> functions_;
-  };
-
-  class FunctionRange {
-  public:
-    explicit FunctionRange(FunctionManager* manager) : fn_manager_{manager} {}
-
-    decltype(auto) begin() {
-      return fn_manager_->functions_.begin();
-    }
-
-    decltype(auto) end() {
-      return fn_manager_->functions_.end();
+      return dawn::dyncastUnchecked<T>(it->get());
     }
 
   private:
-    FunctionManager* fn_manager_;
-  };
-
-  class ReadonlyFunctionRange {
-  public:
-    explicit ReadonlyFunctionRange(const FunctionManager* manager) : fn_manager_{manager} {}
-
-    decltype(auto) begin() {
-      return fn_manager_->functions_.begin();
-    }
-
-    decltype(auto) end() {
-      return fn_manager_->functions_.end();
-    }
-
-  private:
-    const FunctionManager* fn_manager_;
+    DeepHashSet<BumpPtr<Constant>> constants_;
   };
 } // namespace dawn::internal

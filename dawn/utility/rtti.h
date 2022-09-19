@@ -42,10 +42,10 @@ namespace dawn {
   {
     static_assert(!std::same_as<Derived, Base>, "should not be doing `isa` on type check known at compile time");
 
-    if constexpr (internal::RTTIInstanceOf<Base, Derived>) {
-      return Derived::instanceOf(ptr);
-    } else {
+    if constexpr (internal::RTTIAssociatedKey<Base, Derived>) {
       return Derived::kind == ptr->kind();
+    } else {
+      return Derived::instanceOf(ptr);
     }
   }
 

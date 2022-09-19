@@ -51,6 +51,14 @@ namespace dawn {
       return *ptr_;
     }
 
+    [[nodiscard]] T* get() const noexcept {
+      return this->operator->();
+    }
+
+    [[nodiscard]] friend bool operator==(OptionalPtr<T> lhs, OptionalPtr<T> rhs) noexcept {
+      return lhs.ptr_ == rhs.ptr_;
+    }
+
   private:
     T* ptr_ = nullptr;
   };

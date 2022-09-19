@@ -25,7 +25,7 @@ namespace dawn::internal {
     // NOLINTNEXTLINE
     static constexpr SourceLocation current(const char* file = __builtin_FILE(),
         const char* func = __builtin_FUNCTION(),
-        int line = __builtin_LINE()) noexcept {
+        std::uint_least32_t line = __builtin_LINE()) noexcept {
       SourceLocation loc;
 
       loc.file_ = file;

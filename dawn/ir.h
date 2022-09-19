@@ -22,6 +22,8 @@
 #include "./ir/instruction.h"
 #include "./ir/instructions.h"
 #include "./ir/ir_builder.h"
+#include "./ir/ir_reader.h"
+#include "./ir/ir_writer.h"
 #include "./ir/module.h"
 #include "./ir/types.h"
 #include "./ir/value.h"
