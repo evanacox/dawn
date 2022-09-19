@@ -29,49 +29,49 @@ namespace dawn {
   class Value;
 
   struct TrueBranch {
-    explicit TrueBranch(BasicBlock* target) noexcept : target{target} {}
+    explicit TrueBranch(BasicBlock* bb) noexcept : target{bb} {}
 
     BasicBlock* target; // NOLINT
   };
 
   struct FalseBranch {
-    explicit FalseBranch(BasicBlock* target) noexcept : target{target} {}
+    explicit FalseBranch(BasicBlock* bb) noexcept : target{bb} {}
 
     BasicBlock* target; // NOLINT
   };
 
   struct If {
-    explicit If(Value* val) noexcept : val{val} {}
+    explicit If(Value* value) noexcept : val{value} {}
 
     Value* val; // NOLINT
   };
 
   struct Else {
-    explicit Else(Value* val) noexcept : val{val} {}
+    explicit Else(Value* value) noexcept : val{value} {}
 
     Value* val; // NOLINT
   };
 
   struct Dest {
-    explicit Dest(Value* val) noexcept : val{val} {}
+    explicit Dest(Value* value) noexcept : val{value} {}
 
     Value* val; // NOLINT
   };
 
   struct Source {
-    explicit Source(Value* val) noexcept : val{val} {}
+    explicit Source(Value* value) noexcept : val{value} {}
 
     Value* val; // NOLINT
   };
 
   struct Index {
-    explicit Index(Value* val) noexcept : val{val} {}
+    explicit Index(Value* value) noexcept : val{value} {}
 
     Value* val; // NOLINT
   };
 
   struct Agg {
-    explicit Agg(Value* val) noexcept : val{val} {}
+    explicit Agg(Value* value) noexcept : val{value} {}
 
     Value* val; // NOLINT
   };
