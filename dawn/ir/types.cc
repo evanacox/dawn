@@ -90,8 +90,8 @@ namespace dawn {
         fields_.end(),
         ty1.fields_.begin(),
         ty1.fields_.end(),
-        [](const Type* ty1, const Type* ty2) {
-          return *ty1 == *ty2;
+        [](const Type* lhs, const Type* rhs) {
+          return *lhs == *rhs;
         });
   }
 
