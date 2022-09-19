@@ -76,10 +76,10 @@ namespace dawn::internal {
 #define DAWN_ASSERT(cond, reason)                                                                                      \
   do {                                                                                                                 \
     if (!(cond)) [[unlikely]] {                                                                                        \
-      ::dawn::internal::assert_fail(#cond, reason);                                                                    \
+      ::dawn::internal::assertFail(#cond, reason);                                                                     \
     }                                                                                                                  \
   } while (false)
-#define DAWN_UNREACHABLE(reason) ::dawn::internal::debug_unreachable(reason)
+#define DAWN_UNREACHABLE(reason) ::dawn::internal::unreachable(reason)
 #endif
 #else
 #ifdef DAWN_DISABLE_ASSERTIONS
