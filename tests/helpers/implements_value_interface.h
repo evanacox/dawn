@@ -73,7 +73,7 @@ namespace dawn::tests {
       EXPECT_EQ(*values[i], *values[i]);
     }
 
-#define DAWN_INTERNAL_IMPLS_VALUE_DYN_CAST(ty) internal::correctlyDoesRTTI<dawn::ty, T>(val)
+#define DAWN_INTERNAL_IMPLS_VALUE_DYN_CAST(ty) internal::correctlyDoesRTTI<dawn::ty, T>(val);
 
     // test that for each value, it only can be dyn-casted to T and no other type
     // technically overkill, but can't hurt to check it for all of them

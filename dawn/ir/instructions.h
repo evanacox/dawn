@@ -1131,56 +1131,57 @@ namespace dawn {
   };
 
 #define DAWN_FOR_EACH_CONVERSION_INST(MACRO)                                                                           \
-  MACRO(Sext);                                                                                                         \
-  MACRO(Zext);                                                                                                         \
-  MACRO(Trunc);                                                                                                        \
-  MACRO(IToB);                                                                                                         \
-  MACRO(BToI);                                                                                                         \
-  MACRO(IToP);                                                                                                         \
-  MACRO(PToI);                                                                                                         \
-  MACRO(SIToF);                                                                                                        \
-  MACRO(UIToF);                                                                                                        \
-  MACRO(FToSI);                                                                                                        \
+  MACRO(Sext)                                                                                                          \
+  MACRO(Zext)                                                                                                          \
+  MACRO(Trunc)                                                                                                         \
+  MACRO(IToB)                                                                                                          \
+  MACRO(BToI)                                                                                                          \
+  MACRO(IToP)                                                                                                          \
+  MACRO(PToI)                                                                                                          \
+  MACRO(SIToF)                                                                                                         \
+  MACRO(UIToF)                                                                                                         \
+  MACRO(FToSI)                                                                                                         \
   MACRO(FToUI)
 
 #define DAWN_FOR_EACH_BINARY_INST(MACRO)                                                                               \
-  MACRO(And);                                                                                                          \
-  MACRO(Or);                                                                                                           \
-  MACRO(Xor);                                                                                                          \
-  MACRO(Shl);                                                                                                          \
-  MACRO(LShr);                                                                                                         \
-  MACRO(AShr);                                                                                                         \
-  MACRO(IAdd);                                                                                                         \
-  MACRO(ISub);                                                                                                         \
-  MACRO(IMul);                                                                                                         \
-  MACRO(UDiv);                                                                                                         \
-  MACRO(SDiv);                                                                                                         \
-  MACRO(URem);                                                                                                         \
-  MACRO(SRem);                                                                                                         \
-  MACRO(FNeg);                                                                                                         \
-  MACRO(FAdd);                                                                                                         \
-  MACRO(FSub);                                                                                                         \
-  MACRO(FMul);                                                                                                         \
-  MACRO(FDiv);                                                                                                         \
+  MACRO(And)                                                                                                           \
+  MACRO(Or)                                                                                                            \
+  MACRO(Xor)                                                                                                           \
+  MACRO(Shl)                                                                                                           \
+  MACRO(LShr)                                                                                                          \
+  MACRO(AShr)                                                                                                          \
+  MACRO(IAdd)                                                                                                          \
+  MACRO(ISub)                                                                                                          \
+  MACRO(IMul)                                                                                                          \
+  MACRO(UDiv)                                                                                                          \
+  MACRO(SDiv)                                                                                                          \
+  MACRO(URem)                                                                                                          \
+  MACRO(SRem)                                                                                                          \
+  MACRO(FNeg)                                                                                                          \
+  MACRO(FAdd)                                                                                                          \
+  MACRO(FSub)                                                                                                          \
+  MACRO(FMul)                                                                                                          \
+  MACRO(FDiv)                                                                                                          \
   MACRO(FRem)
 
 #define DAWN_FOR_EACH_INST(MACRO)                                                                                      \
-  MACRO(Phi);                                                                                                          \
-  MACRO(Call);                                                                                                         \
-  MACRO(ICmp);                                                                                                         \
-  MACRO(FCmp);                                                                                                         \
-  MACRO(Sel);                                                                                                          \
-  MACRO(Br);                                                                                                           \
-  MACRO(CondBr);                                                                                                       \
-  MACRO(Ret);                                                                                                          \
-  MACRO(Unreachable);                                                                                                  \
-  MACRO(Alloca);                                                                                                       \
-  MACRO(Load);                                                                                                         \
-  MACRO(Store);                                                                                                        \
-  MACRO(Extract);                                                                                                      \
-  MACRO(Insert);                                                                                                       \
-  MACRO(ElemPtr);                                                                                                      \
-  MACRO(Store);                                                                                                        \
+  MACRO(Phi)                                                                                                           \
+  MACRO(Call)                                                                                                          \
+  MACRO(ICmp)                                                                                                          \
+  MACRO(FCmp)                                                                                                          \
+  MACRO(Sel)                                                                                                           \
+  MACRO(Br)                                                                                                            \
+  MACRO(CondBr)                                                                                                        \
+  MACRO(Ret)                                                                                                           \
+  MACRO(Unreachable)                                                                                                   \
+  MACRO(Alloca)                                                                                                        \
+  MACRO(Load)                                                                                                          \
+  MACRO(Store)                                                                                                         \
+  MACRO(Offset)                                                                                                        \
+  MACRO(Extract)                                                                                                       \
+  MACRO(Insert)                                                                                                        \
+  MACRO(ElemPtr)                                                                                                       \
+  MACRO(Store)                                                                                                         \
   DAWN_FOR_EACH_CONVERSION_INST(MACRO);                                                                                \
   DAWN_FOR_EACH_BINARY_INST(MACRO)
 } // namespace dawn
