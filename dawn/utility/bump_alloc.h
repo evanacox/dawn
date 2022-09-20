@@ -45,6 +45,11 @@ namespace dawn {
   class BumpAlloc {
     inline constexpr static std::size_t chunkSize = 4096;
 
+    // we need to create the chunks aligned to max_align_t alignment so any objects
+    // can be created at offset 0. at other offsets we handle alignment ourselves, but that
+    // relies on offset 0 being properly aligned for any object
+    inline constexpr static std::align_val_t alignment = std::align_val_t{alignof(std::max_align_t)};
+
     using Chunk = std::array<std::byte, chunkSize>;
 
   public:
@@ -58,18 +63,21 @@ namespace dawn {
 
     BumpAlloc& operator=(BumpAlloc&&) = default;
 
+    ~BumpAlloc() {
+      for (auto* chunk : chunks_) {
+        // memory is allocated with custom alignment, we need to dealloc it the same way.
+        // the chunks are trivial, and thus we have no need for calling destructor
+        ::operator delete(chunk, alignment);
+      }
+    }
+
     template <typename T, typename... Args>
     [[nodiscard]] BumpPtr<T> alloc(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
       // ensure alignment is kept correct for T
       offset_ += alignof(T) - (offset_ % alignof(T));
 
       if (offset_ + sizeof(T) >= BumpAlloc::chunkSize || chunks_.empty()) {
-        // we need to create the chunks aligned to max_align_t alignment so any objects
-        // can be created at offset 0. at other offsets we handle alignment ourselves, but that
-        // relies on offset 0 being properly aligned for any object
-        constexpr auto alignment = std::align_val_t{alignof(std::max_align_t)};
-
-        chunks_.push_back(absl::WrapUnique(new (alignment) Chunk{}));
+        chunks_.push_back(new (alignment) Chunk{});
         offset_ = 0;
       }
 
@@ -83,7 +91,7 @@ namespace dawn {
     }
 
   private:
-    std::vector<std::unique_ptr<Chunk>> chunks_; // chunks MUST have fixed addresses
+    std::vector<Chunk*> chunks_; // chunks MUST have fixed addresses
     std::size_t offset_;
   };
 } // namespace dawn
