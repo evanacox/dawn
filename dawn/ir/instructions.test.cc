@@ -444,7 +444,6 @@ TEST(DawnIRInstructions, ExtractImplementsValue) {
       builder.createExtract(dawn::Agg{agg2}, builder.constI32(0)),
       builder.createExtract(dawn::Agg{agg2}, builder.constI32(1)),
       builder.createExtract(dawn::Agg{agg2}, builder.constI32(2)),
-      builder.createExtract(dawn::Agg{agg2}, builder.constI32(3)),
   });
 }
 
