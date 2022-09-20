@@ -20,7 +20,7 @@
 
 std::optional<std::string> dawn::readEntireFile(std::string_view filename) noexcept {
   auto data = std::string{};
-  auto file = std::ifstream{filename};
+  auto file = std::ifstream{std::string{filename}};
 
   if (file) {
     file.seekg(0, std::ios::end);

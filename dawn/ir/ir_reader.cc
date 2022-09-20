@@ -1381,10 +1381,7 @@ namespace {
 
 std::variant<std::unique_ptr<dawn::Module>, std::string> dawn::parseIRFromText(std::string_view source) noexcept {
   try {
-    auto parser = Parser(source);
-    auto mod = parser.parse();
-
-    return std::move(mod);
+    return Parser(source).parse();
   } catch (const ParsingError& err) {
     return std::string{err.what()};
   }
