@@ -39,26 +39,30 @@ namespace dawn {
 
     ~APInt() = default;
 
+    friend bool operator==(const APInt& lhs, const APInt& rhs) noexcept {
+      return lhs.width() == rhs.width() && lhs.value() == rhs.value();
+    }
+
     template <typename H> friend H AbslHashValue(H state, const APInt& value) {
-      H::combine(std::move(state), value);
+      H::combine(std::move(state), value.value_);
 
       return state;
     }
 
     [[nodiscard]] std::uint64_t width() const noexcept {
-      constexpr auto shift_by = std::uint64_t{7} * std::uint64_t{8};
-      constexpr auto width_mask = std::uint64_t{0xFF} << shift_by;
+      constexpr auto shiftBy = std::uint64_t{7} * std::uint64_t{8};
+      constexpr auto widthMask = std::uint64_t{0xFF} << shiftBy;
 
-      return (absl::Uint128High64(value_) & width_mask) >> shift_by;
+      return (absl::Uint128High64(value_) & widthMask) >> shiftBy;
     }
 
     [[nodiscard]] std::uint64_t value() const noexcept {
       // we get the 64-bit raw value, and then shave off any bits
       // that don't matter for an integer of our width
       auto lower = absl::Uint128Low64(value_);
-      auto mask_for_width = ~std::uint64_t{0} >> (64 - width());
+      auto maskForWidth = ~std::uint64_t{0} >> (64 - width());
 
-      return lower & mask_for_width;
+      return lower & maskForWidth;
     }
 
   private:
@@ -66,7 +70,14 @@ namespace dawn {
     // any overflow conditions during any constant operations. we only
     // actually care about the bottom 64 bits
     //
-    // we store the width in the most-significant 8 bits of the value
+    // we store the width in the most-significant 8 bits of the value.
+    //
+    // Bytes: 0xA.......CCCCCCCC
+    //          |       ^
+    //          |       actual 64-bit value
+    //          |
+    //          ^
+    //          width
     absl::uint128 value_;
   };
 } // namespace dawn

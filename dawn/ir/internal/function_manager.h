@@ -16,25 +16,55 @@
 
 #pragma once
 
-#include "absl/hash/hash.h"
-#include <cstddef>
-#include <utility>
+#include "../../adt/optional_ptr.h"
+#include "../function.h"
+#include "absl/container/flat_hash_map.h"
 
 namespace dawn::internal {
-  template <typename T, typename Hasher> class CachedHash {
+  class FunctionManager {
   public:
-    template <typename... Args>
-    /*implicit*/ CachedHash(Args&&... args) // NOLINT(google-explicit-constructor)
-        : object_{std::forward<Args>(args)...} {
-      hash_ = Hasher{}(object_);
+    [[nodiscard]] OptionalPtr<Function> getFunctionIfExists(std::string_view name) const noexcept;
+
+    [[nodiscard]] bool contains(std::string_view name) const noexcept;
+
+    [[nodiscard]] Function* create(class Module* mod, std::string name, Type* ty, std::span<Argument> args) noexcept;
+
+  private:
+    friend class FunctionRange;
+    friend class ReadonlyFunctionRange;
+
+    absl::flat_hash_map<std::string, std::unique_ptr<Function>> functions_;
+  };
+
+  class FunctionRange {
+  public:
+    explicit FunctionRange(FunctionManager* manager) : fn_manager_{manager} {}
+
+    decltype(auto) begin() {
+      return fn_manager_->functions_.begin();
     }
 
-    template <typename H> friend H AbslHashValue(H h, const CachedHash& c) {
-      return H::combine(std::move(h), c.hash_);
+    decltype(auto) end() {
+      return fn_manager_->functions_.end();
     }
 
   private:
-    std::size_t hash_;
-    T object_;
+    FunctionManager* fn_manager_;
+  };
+
+  class ReadonlyFunctionRange {
+  public:
+    explicit ReadonlyFunctionRange(const FunctionManager* manager) : fn_manager_{manager} {}
+
+    decltype(auto) begin() {
+      return fn_manager_->functions_.begin();
+    }
+
+    decltype(auto) end() {
+      return fn_manager_->functions_.end();
+    }
+
+  private:
+    const FunctionManager* fn_manager_;
   };
 } // namespace dawn::internal

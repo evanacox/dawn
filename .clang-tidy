@@ -9,6 +9,7 @@ Checks: >
   readability-*,
   fuchsia-trailing-return,
   -bugprone-exception-escape,
+  -bugprone-argument-comment,
   -readability-uppercase-literal-suffix,
   -modernize-use-trailing-return-type,
 
@@ -48,7 +49,7 @@ CheckOptions:
   - key: 'readability-magic-numbers.IgnorePowersOf2IntegerValues'
     value: 1
   - key: 'readability-identifier-naming.NamespaceCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.ClassCase'
     value: 'CamelCase'
   - key: 'readability-identifier-naming.StructCase'
@@ -56,28 +57,26 @@ CheckOptions:
   - key: 'readability-identifier-naming.TemplateParameterCase'
     value: 'CamelCase'
   - key: 'readability-identifier-naming.VariableCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.ClassMemberCase'
-    value: 'lower_case'
-  - key: 'readability-identifier-naming.ClassMemberSuffix'
-    value: '_'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.PrivateMemberSuffix'
     value: '_'
   - key: 'readability-identifier-naming.ProtectedMemberSuffix'
     value: '_'
   - key: 'readability-identifier-naming.EnumConstantCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.ConstexprVariableCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.GlobalConstantCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.MemberConstantCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-naming.StaticConstantCase'
-    value: 'lower_case'
+    value: 'camelBack'
   - key: 'readability-identifier-length.IgnoredVariableNames'
-    value: '(_|i|ty)'
+    value: '(_|i|ty|fn|bb|ch)'
   - key: 'readability-identifier-length.IgnoredParameterNames'
-    value: '(i|ty)'
+    value: '(i|ty|fn|bb|ch)'
   - key: 'readability-identifier-naming.TypeTemplateParameterIgnoredRegexp'
     value: 'expr-type'

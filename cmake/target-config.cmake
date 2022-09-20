@@ -19,9 +19,11 @@ function(configure_dawn_target)
     target_compile_features(${TARGET} PUBLIC cxx_std_20)
     target_link_libraries(${TARGET} PUBLIC ${CONFIGURE_DAWN_TARGET_DEPENDS})
 
+    separate_arguments(flagsAsList UNIX_COMMAND "${DAWN_CXX_FLAGS} ${DAWN_EXTRA_CXX_FLAGS}")
+    target_compile_options(${TARGET} PRIVATE ${flagsAsList})
+
     set_target_properties(${TARGET} PROPERTIES
             CXX_CLANG_TIDY "${DAWN_CXX_CLANG_TIDY}"
-            CXX_FLAGS "${DAWN_CXX_FLAGS}"
             SOURCES "${CONFIGURE_DAWN_TARGET_FILES}")
 endfunction()
 

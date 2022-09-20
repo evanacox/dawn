@@ -18,13 +18,13 @@
 
 namespace dawn {
   APInt::APInt(std::uint64_t value, Width width) noexcept : value_{} {
-    constexpr auto shift_by = std::uint64_t{7} * std::uint64_t{8};
-    auto raw_width = static_cast<std::uint64_t>(width);
+    constexpr auto shiftBy = std::uint64_t{7} * std::uint64_t{8};
+    auto rawWidth = static_cast<std::uint64_t>(width);
 
     // shave off extra bits, so if the value is >= max of width it doesn't matter
     value_ = value & (~std::uint64_t{0} >> (64 - static_cast<int>(width)));
 
     // pack width into the highest bits
-    value_ |= absl::MakeUint128(raw_width << shift_by, 0);
+    value_ |= absl::MakeUint128(rawWidth << shiftBy, 0);
   }
 } // namespace dawn

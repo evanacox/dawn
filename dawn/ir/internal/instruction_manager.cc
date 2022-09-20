@@ -14,24 +14,31 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#pragma once
+#include "dawn/ir/internal/instruction_manager.h"
+#include "absl/container/flat_hash_map.h"
 
-#include "../ir/value.h"
-#include "../utility/deref_hashable.h"
-#include "absl/container/flat_hash_set.h"
+namespace dawn::internal {
+  absl::flat_hash_map<Instruction*, std::size_t> InstructionManager::useCountOfEveryInst() const noexcept {
+    auto counts = absl::flat_hash_map<Instruction*, std::size_t>{};
 
-namespace dawn {
-  /// Used for instruction de-duplication. Equivalent
-  /// values hash to the same
-  class ValueSet {
-  public:
-    ValueSet() = default;
-
-    [[nodiscard]] Value* put(Value* value) noexcept {
-      return *values_.insert(value).first;
+    for (const auto& inst : instructions_) {
+      for (auto* operand : inst->operands()) {
+        if (auto ptr = dawn::dyncast<Instruction>(operand)) {
+          ++counts[ptr.get()];
+        }
+      }
     }
 
-  private:
-    absl::flat_hash_set<DerefHashable<Value>> values_;
-  };
-} // namespace dawn
+    return counts;
+  }
+
+  std::size_t InstructionManager::useCount(Instruction* inst) const noexcept {
+    auto count = std::size_t{0};
+
+    for (const auto& instruction : instructions_) {
+      count += instruction->useCount(inst);
+    }
+
+    return count;
+  }
+} // namespace dawn::internal

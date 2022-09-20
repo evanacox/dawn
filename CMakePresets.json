@@ -37,6 +37,13 @@
       }
     },
     {
+      "name": "clang-format",
+      "hidden": true,
+      "cacheVariables": {
+        "DAWN_FORMAT_COMMAND": "clang-format"
+      }
+    },
+    {
       "name": "ci-std",
       "description": "This preset makes sure the project actually builds with at least the specified standard",
       "hidden": true,

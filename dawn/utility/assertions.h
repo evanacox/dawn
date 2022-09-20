@@ -25,7 +25,7 @@ namespace dawn::internal {
     // NOLINTNEXTLINE
     static constexpr SourceLocation current(const char* file = __builtin_FILE(),
         const char* func = __builtin_FUNCTION(),
-        int line = __builtin_LINE()) noexcept {
+        std::uint_least32_t line = __builtin_LINE()) noexcept {
       SourceLocation loc;
 
       loc.file_ = file;
@@ -41,11 +41,11 @@ namespace dawn::internal {
       return line_;
     }
 
-    [[nodiscard]] constexpr const char* file_name() const noexcept {
+    [[nodiscard]] constexpr const char* filename() const noexcept {
       return file_;
     }
 
-    [[nodiscard]] constexpr const char* function_name() const noexcept {
+    [[nodiscard]] constexpr const char* function() const noexcept {
       return func_;
     }
 
@@ -55,11 +55,11 @@ namespace dawn::internal {
     uint_least32_t line_ = 0;
   };
 
-  [[noreturn]] DAWN_PUBLIC void assert_fail(const char* condition_string,
+  [[noreturn]] DAWN_PUBLIC void assertFail(const char* condition_string,
       const char* explanation,
       SourceLocation loc = SourceLocation::current()) noexcept;
 
-  [[noreturn]] DAWN_PUBLIC void debug_unreachable(const char* explanation,
+  [[noreturn]] DAWN_PUBLIC void unreachable(const char* explanation,
       SourceLocation loc = SourceLocation::current()) noexcept;
 } // namespace dawn::internal
 
@@ -76,10 +76,10 @@ namespace dawn::internal {
 #define DAWN_ASSERT(cond, reason)                                                                                      \
   do {                                                                                                                 \
     if (!(cond)) [[unlikely]] {                                                                                        \
-      ::dawn::internal::assert_fail(#cond, reason);                                                                    \
+      ::dawn::internal::assertFail(#cond, reason);                                                                     \
     }                                                                                                                  \
   } while (false)
-#define DAWN_UNREACHABLE(reason) ::dawn::internal::debug_unreachable(reason)
+#define DAWN_UNREACHABLE(reason) ::dawn::internal::unreachable(reason)
 #endif
 #else
 #ifdef DAWN_DISABLE_ASSERTIONS
@@ -94,9 +94,9 @@ namespace dawn::internal {
 #define DAWN_ASSERT(cond, reason)                                                                                      \
   do {                                                                                                                 \
     if (!(cond)) [[unlikely]] {                                                                                        \
-      ::dawn::internal::assert_fail((#cond), (reason));                                                                \
+      ::dawn::internal::assertFail((#cond), (reason));                                                                 \
     }                                                                                                                  \
   } while (false)
-#define DAWN_UNREACHABLE(reason) ::dawn::internal::debug_unreachable((reason))
+#define DAWN_UNREACHABLE(reason) ::dawn::internal::unreachable((reason))
 #endif
 #endif

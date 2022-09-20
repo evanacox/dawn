@@ -17,10 +17,12 @@
 #include "dawn/utility/assertions.h"
 #include "gtest/gtest.h"
 
-TEST(DawnUtilityAssertions, AssertFailDoesKill) {
-  EXPECT_DEATH(dawn::internal::assert_fail("2 == 3", "should equal"), "should equal");
+TEST(DawnUtilityAssertions, AssertFailDoesKill) { // NOLINT(readability-function-cognitive-complexity)
+  EXPECT_DEATH(DAWN_ASSERT(2 == 3, "2 isn't real"), "2 isn't real");
+  EXPECT_DEATH(dawn::internal::assertFail("2 == 3", "should equal"), "should equal");
 }
 
 TEST(DawnUtilityAssertions, DebugUnreachableDoesKill) {
-  EXPECT_DEATH(dawn::internal::debug_unreachable("should equal"), "should equal");
+  EXPECT_DEATH(DAWN_UNREACHABLE("12345"), "12345");
+  EXPECT_DEATH(dawn::internal::unreachable("should equal"), "should equal");
 }

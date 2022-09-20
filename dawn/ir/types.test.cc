@@ -27,6 +27,7 @@ TEST(DawnIRTypes, IntRTTI) {
   EXPECT_FALSE(dawn::isa<dawn::Ptr>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Array>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Struct>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Void>(ty));
 }
 
 TEST(DawnIRTypes, FloatRTTI) {
@@ -39,6 +40,7 @@ TEST(DawnIRTypes, FloatRTTI) {
   EXPECT_FALSE(dawn::isa<dawn::Ptr>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Array>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Struct>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Void>(ty));
 }
 
 TEST(DawnIRTypes, BoolRTTI) {
@@ -51,6 +53,7 @@ TEST(DawnIRTypes, BoolRTTI) {
   EXPECT_FALSE(dawn::isa<dawn::Ptr>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Array>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Struct>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Void>(ty));
 }
 
 TEST(DawnIRTypes, PtrRTTI) {
@@ -63,6 +66,7 @@ TEST(DawnIRTypes, PtrRTTI) {
   EXPECT_FALSE(dawn::isa<dawn::Int>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Array>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Struct>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Void>(ty));
 }
 
 TEST(DawnIRTypes, ArrayRTTI) {
@@ -76,6 +80,7 @@ TEST(DawnIRTypes, ArrayRTTI) {
   EXPECT_FALSE(dawn::isa<dawn::Float>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Int>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Struct>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Void>(ty));
 }
 
 TEST(DawnIRTypes, StructRTTI) {
@@ -89,6 +94,17 @@ TEST(DawnIRTypes, StructRTTI) {
   EXPECT_FALSE(dawn::isa<dawn::Bool>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Float>(ty));
   EXPECT_FALSE(dawn::isa<dawn::Int>(ty));
+}
 
-  EXPECT_TRUE(true);
+TEST(DawnIRTypes, VoidRTTI) {
+  auto ty1 = dawn::Void{};
+  auto* ty = static_cast<dawn::Type*>(&ty1);
+
+  EXPECT_TRUE(dawn::isa<dawn::Void>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Struct>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Array>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Ptr>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Bool>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Float>(ty));
+  EXPECT_FALSE(dawn::isa<dawn::Int>(ty));
 }

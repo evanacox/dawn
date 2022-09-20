@@ -15,7 +15,31 @@
 //======---------------------------------------------------------------======//
 
 #include "dawn/ir/module.h"
-#include "dawn/ir/internal/type_manager.h"
-#include "dawn/ir/types.h"
+#include "dawn/ir/ir_writer.h"
 
-namespace dawn {} // namespace dawn
+namespace {
+  bool fnDeepEquals(const dawn::Function& lhs, const dawn::Function& rhs) noexcept {
+    (void)lhs;
+    (void)rhs;
+
+    DAWN_UNREACHABLE("todo");
+  }
+} // namespace
+
+namespace dawn {
+  Module::Module() : tys_{&pool_} {}
+} // namespace dawn
+
+bool dawn::deepEquals(const dawn::Module& lhs, const dawn::Module& rhs) noexcept {
+  auto lhsRange = internal::ReadonlyFunctionRange(&lhs.fns_);
+  auto rhsRange = internal::ReadonlyFunctionRange(&rhs.fns_);
+
+  for (auto lhsIt = lhsRange.begin(), rhsIt = rhsRange.begin(); lhsIt != lhsRange.end() && rhsIt != rhsRange.end();
+       ++lhsIt, ++rhsIt) {
+    if (!fnDeepEquals(*(lhsIt->second), *(rhsIt->second))) {
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -16,6 +16,7 @@ include(cmake/target-config.cmake)
 
 # ---- Declare library ----
 
+set(ABSL_USE_SYSTEM_INCLUDES ON)
 set(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(vendor/abseil-cpp)
 
@@ -27,12 +28,25 @@ add_dawn_library(dawn_dawn
         "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>"
         "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
         FILES
-        ./dawn/ir/internal/type_manager.cc
         ./dawn/ir/module.cc
         ./dawn/ir/types.cc
         ./dawn/utility/assertions.cc
         ./dawn/utility/apint.cc
-        ./dawn/ir/instructions.cc)
+        ./dawn/ir/instructions.cc
+        ./dawn/ir/instructions.cc
+        ./dawn/ir/instruction.cc
+        ./dawn/ir/basic_block.cc
+        ./dawn/ir/ir_builder.cc
+        ./dawn/ir/function.cc
+        ./dawn/ir/internal/type_manager.cc
+        ./dawn/ir/internal/function_manager.cc
+        ./dawn/ir/internal/instruction_manager.cc
+        ./dawn/ir/constant.cc
+        ./dawn/ir/internal/constant_pool.cc
+        ./dawn/ir/ir_writer.cc
+        ./dawn/ir/ir_reader.cc
+        ./dawn/utility/file.cc
+        ./dawn/analysis/cfg_edges.cc)
 
 include(GenerateExportHeader)
 generate_export_header(
