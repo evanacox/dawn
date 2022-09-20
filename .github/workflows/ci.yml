@@ -120,7 +120,7 @@ jobs:
           strict_init_order=1:\
           detect_leaks=1"
           UBSAN_OPTIONS: print_stacktrace=1
-        run: ctest
+        run: ctest --rerun-failed --output-on-failure || cat /home/runner/work/dawn/dawn/build/sanitize/Testing/Temporary/LastTest.log
 
   test:
     needs: [ lint ]
@@ -172,8 +172,8 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ctest --rerun-failed --output-on-failure || cat /home/runner/work/dawn/dawn/build/sanitize/Testing/Temporary/LastTest.log
-
+        run: ctest 
+        
   docs:
     # Deploy docs only when builds succeed
     needs: [ sanitize, test ]
