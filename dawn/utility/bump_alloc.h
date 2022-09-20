@@ -17,6 +17,7 @@
 #pragma once
 
 #include "../config.h"
+#include "absl/utility/utility.h"
 #include <array>
 #include <concepts>
 #include <cstddef>
@@ -42,9 +43,9 @@ namespace dawn {
   template <typename T> using BumpPtr = std::unique_ptr<T, internal::InPlaceDeleter<T>>;
 
   class BumpAlloc {
-    inline constexpr static std::size_t chunk_size = 4096;
+    inline constexpr static std::size_t chunkSize = 4096;
 
-    using Chunk = std::array<std::byte, chunk_size>;
+    using Chunk = std::array<std::byte, chunkSize>;
 
   public:
     BumpAlloc() = default;
@@ -59,16 +60,20 @@ namespace dawn {
 
     template <typename T, typename... Args>
     [[nodiscard]] BumpPtr<T> alloc(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
-      if (offset_ + sizeof(T) >= BumpAlloc::chunk_size || chunks_.empty()) {
-        chunks_.push_back(std::make_unique<Chunk>());
+      // ensure alignment is kept correct
+      offset_ += alignof(T) - (offset_ % alignof(T));
+      offset_ += sizeof(T);
+
+      if (offset_ >= BumpAlloc::chunkSize || chunks_.empty()) {
+        // we need to create the chunks aligned to max_align_t alignment so any objects
+        // can be created at offset 0. at other offsets we handle alignment ourselves
+        constexpr auto alignment = std::align_val_t{alignof(std::max_align_t)};
+
+        chunks_.push_back(absl::WrapUnique(new (alignment) Chunk{}));
         offset_ = 0;
       }
 
       auto& back = *chunks_.back();
-
-      // ensure alignment is kept correct
-      offset_ += alignof(T) - (offset_ % alignof(T));
-      offset_ += sizeof(T);
 
       return BumpPtr<T>(std::construct_at(reinterpret_cast<T*>(back.data() + offset_), std::forward<Args>(args)...));
     }
