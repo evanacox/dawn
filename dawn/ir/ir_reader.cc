@@ -708,9 +708,10 @@ namespace {
         case Tok::symbolBracketOpen: return parseConstantArray(expected);
         case Tok::literalString: {
           auto final = std::string{};
+          const auto* end = tok.raw.data() + tok.raw.size() - 1;
 
-          for (const auto* it = tok.raw.data() + 1; it != tok.raw.data() + tok.raw.size() - 1; ++it) {
-            final += parseSingleChar(it, tok.raw.end() - 1);
+          for (const auto* it = tok.raw.data() + 1; it != end; ++it) {
+            final += parseSingleChar(it, end);
           }
 
           return ib_.constString(std::move(final));

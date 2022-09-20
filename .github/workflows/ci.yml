@@ -172,7 +172,7 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ctest
+        run: ctest --output-on-failure
 
   docs:
     # Deploy docs only when builds succeed
