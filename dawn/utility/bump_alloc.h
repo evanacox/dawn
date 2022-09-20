@@ -30,7 +30,8 @@ namespace dawn {
 
       template <typename U>
       InPlaceDeleter(const InPlaceDeleter<U>& /*unused*/) noexcept // NOLINT(google-explicit-constructor)
-          requires std::convertible_to<U*, T*> {}
+        requires std::convertible_to<U*, T*>
+      {}
 
       void operator()(T* ptr) const noexcept {
         std::destroy_at(ptr);
@@ -64,10 +65,12 @@ namespace dawn {
       }
 
       auto& back = *chunks_.back();
-      auto* ptr = reinterpret_cast<T*>(back.data() + offset_);
+
+      // ensure alignment is kept correct
+      offset_ += alignof(T) - (offset_ % alignof(T));
       offset_ += sizeof(T);
 
-      return BumpPtr<T>(std::construct_at(ptr, std::forward<Args>(args)...));
+      return BumpPtr<T>(std::construct_at(reinterpret_cast<T*>(back.data() + offset_), std::forward<Args>(args)...));
     }
 
   private:
