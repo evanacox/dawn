@@ -17,7 +17,7 @@
 #pragma once
 
 #include "../config.h"
-#include "absl/utility/utility.h"
+#include "absl/memory/memory.h"
 #include <array>
 #include <concepts>
 #include <cstddef>
@@ -60,13 +60,13 @@ namespace dawn {
 
     template <typename T, typename... Args>
     [[nodiscard]] BumpPtr<T> alloc(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
-      // ensure alignment is kept correct
+      // ensure alignment is kept correct for T
       offset_ += alignof(T) - (offset_ % alignof(T));
-      offset_ += sizeof(T);
 
-      if (offset_ >= BumpAlloc::chunkSize || chunks_.empty()) {
+      if (offset_ + sizeof(T) >= BumpAlloc::chunkSize || chunks_.empty()) {
         // we need to create the chunks aligned to max_align_t alignment so any objects
-        // can be created at offset 0. at other offsets we handle alignment ourselves
+        // can be created at offset 0. at other offsets we handle alignment ourselves, but that
+        // relies on offset 0 being properly aligned for any object
         constexpr auto alignment = std::align_val_t{alignof(std::max_align_t)};
 
         chunks_.push_back(absl::WrapUnique(new (alignment) Chunk{}));
@@ -74,8 +74,12 @@ namespace dawn {
       }
 
       auto& back = *chunks_.back();
+      auto* ptr = reinterpret_cast<T*>(back.data() + offset_);
 
-      return BumpPtr<T>(std::construct_at(reinterpret_cast<T*>(back.data() + offset_), std::forward<Args>(args)...));
+      // sizeof(T) space is now taken up after we save the address for the new object
+      offset_ += sizeof(T);
+
+      return BumpPtr<T>(std::construct_at(ptr, std::forward<Args>(args)...));
     }
 
   private:

@@ -80,7 +80,6 @@ class AbslFlatHashMapSynthProvider:
 
             return current.CreateChildAtOffset('[' + str(index) + ']', self.skip_size, self.data_type)
         except:
-            logger >> "Cannot get child"
             return None
 
     def num_children(self):
