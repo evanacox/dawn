@@ -67,7 +67,7 @@ namespace dawn {
       for (auto* chunk : chunks_) {
         // memory is allocated with custom alignment, we need to dealloc it the same way.
         // the chunks are trivial, and thus we have no need for calling destructor
-        ::operator delete(chunk, alignment);
+        ::operator delete(static_cast<void*>(chunk), alignment);
       }
     }
 
@@ -77,7 +77,12 @@ namespace dawn {
       offset_ += alignof(T) - (offset_ % alignof(T));
 
       if (offset_ + sizeof(T) >= BumpAlloc::chunkSize || chunks_.empty()) {
-        chunks_.push_back(new (alignment) Chunk{});
+        // while `new (alignment) Chunk` exists, that causes a compile error under MSVC as of Sept. 20 2022.
+        // See https://developercommunity.visualstudio.com/t/using-c17-new-stdalign-val-tn-syntax-results-in-er/528320
+        auto* storage = ::operator new(sizeof(Chunk), alignment);
+        auto* chunk = std::construct_at(static_cast<Chunk*>(storage));
+
+        chunks_.push_back(chunk);
         offset_ = 0;
       }
 
