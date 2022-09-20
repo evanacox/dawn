@@ -709,7 +709,7 @@ namespace {
         case Tok::literalString: {
           auto final = std::string{};
 
-          for (auto it = tok.raw.begin() + 1; it != tok.raw.end() - 1; ++it) {
+          for (const auto* it = tok.raw.data() + 1; it != tok.raw.data() + tok.raw.size() - 1; ++it) {
             final += parseSingleChar(it, tok.raw.end() - 1);
           }
 
