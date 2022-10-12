@@ -50,7 +50,15 @@ namespace dawn {
     auto currBlock = 0;
 
     for (const auto& block : fn->blocks()) {
-      auto name = (&block == fn->entry().get()) ? std::string{"entry"} : absl::StrCat("bb", currBlock++);
+      auto name = std::string{};
+
+      if (auto declaredName = block.name()) {
+        name = std::string{declaredName.value()};
+      } else if (&block == fn->entry().get()) {
+        name = "entry";
+      } else {
+        name = absl::StrCat("bb", currBlock++);
+      }
 
       bbNames_[&block] = std::move(name);
 
@@ -478,7 +486,7 @@ namespace dawn {
         absl::StrAppend(buffer, dyncastUnchecked<const ConstantBool>(val)->value() ? "true" : "false");
         break;
       case ValueKind::constString:
-        absl::StrAppend(buffer, dyncastUnchecked<const ConstantString>(val)->stringData());
+        absl::StrAppend(buffer, "\"", dyncastUnchecked<const ConstantString>(val)->stringData(), "\"");
         break;
       case ValueKind::constUndef: absl::StrAppend(buffer, "undef"); break;
       case ValueKind::argument: absl::StrAppend(buffer, "$", instNames_.at(val)); break;

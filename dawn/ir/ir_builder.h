@@ -76,16 +76,40 @@ namespace dawn {
       return mod_->findFunc(name);
     }
 
-    BasicBlock* createBlock() noexcept {
-      DAWN_ASSERT(curr_fn_, "must have a function to put the block in. use `setInsertFn`");
+    [[nodiscard]] BasicBlock* createBlock() noexcept {
+      DAWN_ASSERT(currFn_, "must have a function to put the block in. use `setInsertFn`");
 
-      return curr_fn_->addBlock(BasicBlock{curr_fn_.get()});
+      return currFn_->addBlock(BasicBlock{currFn_.get(), internal::MaybeInternedString{nullptr}});
     }
 
-    BasicBlock* createBlock(Function* fn) noexcept {
-      curr_fn_ = dawn::some(fn);
+    BasicBlock* createBlock(std::string name) noexcept {
+      DAWN_ASSERT(currFn_, "must have a function to put the block in. use `setInsertFn`");
 
-      return createBlock();
+      auto interned = mod_->strs_.intern(std::move(name));
+
+      return currFn_->addBlock(BasicBlock{currFn_.get(), internal::MaybeInternedString{interned}});
+    }
+
+    [[nodiscard]] std::optional<BasicBlock*> findBlockWithName(std::string_view name) noexcept {
+      if (!currFn_) {
+        return std::nullopt;
+      }
+
+      for (auto& bb : currFn_->blocks()) {
+        if (bb.name() == name) {
+          return &bb;
+        }
+      }
+
+      return std::nullopt;
+    }
+
+    [[nodiscard]] BasicBlock* findOrCreateBlock(std::string_view name) noexcept {
+      if (auto block = findBlockWithName(name)) {
+        return *block;
+      }
+
+      return createBlock(std::string{name});
     }
 
     void setInsertBlock(BasicBlock* block) noexcept {
