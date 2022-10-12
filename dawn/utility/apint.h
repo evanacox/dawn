@@ -53,6 +53,7 @@ namespace dawn {
       constexpr auto shiftBy = std::uint64_t{7} * std::uint64_t{8};
       constexpr auto widthMask = std::uint64_t{0xFF} << shiftBy;
 
+      // width is stored in the most-significant bits of `value_`
       return (absl::Uint128High64(value_) & widthMask) >> shiftBy;
     }
 

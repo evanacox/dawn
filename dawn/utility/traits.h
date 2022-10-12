@@ -14,17 +14,12 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/analysis/cfg_edges.h"
+#pragma once
 
 namespace dawn {
-  CfgBlockEdges::CfgBlockEdges(absl::flat_hash_map<const BasicBlock*, internal::EdgeStorage> successors,
-      absl::flat_hash_map<const BasicBlock*, internal::EdgeStorage> predecessors) noexcept
-      : successors_{std::move(successors)},
-        predecessors_{std::move(predecessors)} {}
+  template <typename... Ts, typename Fn> void forEachTy(Fn f) noexcept {
+    (f.template operator()<Ts>(), ...);
+  }
+
+  template <typename T> inline constexpr bool dependentFalse = false;
 } // namespace dawn
-
-dawn::CfgBlockEdges dawn::calculateCfgEdges(const Function* fn) noexcept {
-  (void)fn;
-
-  DAWN_UNREACHABLE("todo");
-}

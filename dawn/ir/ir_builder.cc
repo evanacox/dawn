@@ -35,10 +35,10 @@ namespace dawn {
   Instruction* IRBuilder::insertInst(BumpPtr<Instruction> inst) noexcept {
     DAWN_ASSERT(currentBlock(), "must have a block to insert into with `IRBuilder::insertInst`");
 
-    curr_block_->append(inst.get());
+    currBlock_->append(inst.get());
     mod_->instructions_.insert(std::move(inst));
 
-    return curr_block_->instructions().back();
+    return currBlock_->instructions().back();
   }
 
   ConstantArray* IRBuilder::constArrayFill(Constant* val, std::size_t length) noexcept {
