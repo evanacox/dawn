@@ -16,10 +16,6 @@ include(cmake/target-config.cmake)
 
 # ---- Declare library ----
 
-set(ABSL_USE_SYSTEM_INCLUDES ON)
-set(ABSL_PROPAGATE_CXX_STD ON)
-add_subdirectory(vendor/abseil-cpp)
-
 add_dawn_library(dawn_dawn
         ALIAS dawn::dawn
         EXPORT_NAME dawn
@@ -71,6 +67,11 @@ set_target_properties(
 )
 
 add_subdirectory(tools)
+
+set(ABSL_USE_SYSTEM_INCLUDES ON)
+set(ABSL_PROPAGATE_CXX_STD ON)
+set(ABSL_BUILD_TESTING OFF)
+add_subdirectory(vendor/abseil-cpp)
 
 # ---- Developer mode ----
 
