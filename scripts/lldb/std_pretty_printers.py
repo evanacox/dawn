@@ -8,7 +8,7 @@ def __lldb_init_module(debugger, *_args):
     debugger.HandleCommand(
         "type synthetic add -x '^std::(.*::)*span<.+>$' -l std_pretty_printers.StdSpanSynthProvider")
     debugger.HandleCommand(
-        "type summary add -x '^std::(.*::)*span<.+>$' -l std_pretty_printers.StdSpanSummaryProvider")
+        "type summary add -x '^std::(.*::)*span<.+>$' -F std_pretty_printers.StdSpanSummaryProvider")
 
 
 class StdSpanSynthProvider:

@@ -5,55 +5,54 @@ import itertools
 
 def __lldb_init_module(debugger, *_args):
     debugger.HandleCommand(
-        "type synthetic add -x '^absl::flat_hash_set<.+>$' -l absl_pretty_printers.AbslFlatHashMapSynthProvider")
+        "type synthetic add -x '^absl::flat_hash_map<.+>$' -l absl_pretty_printers.AbslFlatHashMapSynthProvider")
+    debugger.HandleCommand(
+        "type synthetic add -x '^absl::flat_hash_set<.+>$' -l absl_pretty_printers.AbslFlatHashSetSynthProvider")
     debugger.HandleCommand(
         "type synthetic add -x '^absl::InlinedVector<.+>$' -l absl_pretty_printers.AbslInlinedVectorSynthProvider")
     debugger.HandleCommand(
         "type summary add -x '^absl::InlinedVector<.+>$' -F absl_pretty_printers.AbslInlinedVectorSummaryProvider")
 
 
-def absl_hash_values(val):
+def absl_hash_values(val, slot_ty, pair_ty):
     size = val.GetChildMemberWithName("size_")
 
     if size.GetValueAsUnsigned(0) == 0:
         return
 
-    table = val
-    capacity = table.GetChildMemberWithName("capacity_").GetValueAsUnsigned(0)
-    ctrl = table.GetChildMemberWithName("ctrl_")
+    capacity = val.GetChildMemberWithName("capacity_").GetValueAsUnsigned(0)
+    ctrl = val.GetChildMemberWithName("ctrl_")
+    ctrl_ty = ctrl.GetType().GetPointeeType()
+    slots = val.GetChildMemberWithName("slots_")
+    slot_size = slot_ty.GetByteSize()
 
-    for item in range(capacity):
-        ctrl_t = int(ctrl[item])
+    for i in range(capacity):
+        ctrl_t = ctrl.CreateChildAtOffset("", i, ctrl_ty).GetValueAsUnsigned(0)
+
         if ctrl_t >= 0:
-            yield table["slots_"][item]
+            yield slots.CreateChildAtOffset(f"[{i}]", i * slot_size, pair_ty)
 
 
 class AbslFlatHashMapSynthProvider:
     def __init__(self, valobj, dict):
         self.valobj = valobj
-        self.count = None
-        self.ctrl = None
-        self.key_ty = None
-        self.value_ty = None
-        self.data_ty = None
-        self.data_size = None
 
     def update(self):
-        self.count = None
-
         try:
             ty = self.valobj.GetType()
 
-            self.ctrl = self.valobj.GetChildMemberWithName('ctrl_')
+            self.size = self.valobj.GetChildMemberWithName('size_').GetValueAsUnsigned(0)
 
             # absl::flat_hash_map<K, V, Hash, Eq, Alloc>
-            self.key_ty = ty.GetTemplateArgumentType(1)
-            self.value_ty = ty.GetTemplateArgumentType(2)
+            self.key_ty = ty.GetTemplateArgumentType(0)
+            self.value_ty = ty.GetTemplateArgumentType(1)
+            self.pair_ty = ty.GetTemplateArgumentType(4).GetTemplateArgumentType(0)
+            self.ctrl = self.valobj.GetChildMemberWithName('ctrl_')
             self.data_ty = self.valobj.GetChildMemberWithName('slots_').GetType().GetPointeeType()
-            self.data_size = self.data_ty.GetByteSize()
+            self.pairs = [pair for pair in absl_hash_values(self.valobj, self.data_ty, self.pair_ty)]
 
         except:
-            self.count = 0
+            self.size = 0
 
         return False
 
@@ -70,23 +69,59 @@ class AbslFlatHashMapSynthProvider:
         if index >= self.num_children():
             return None
 
-        try:
-            offset = index
-            current = self.next
-
-            while offset > 0:
-                current = current.GetChildMemberWithName('_M_nxt')
-                offset = offset - 1
-
-            return current.CreateChildAtOffset('[' + str(index) + ']', self.skip_size, self.data_type)
-        except:
-            return None
+        return self.pairs[index]
 
     def num_children(self):
-        if self.count is None:
-            self.count = self.valobj.GetChildMemberWithName('size_').GetValueAsUnsigned(0)
+        if self.size is None:
+            self.update()
 
-        return self.count
+        return self.size
+
+
+class AbslFlatHashSetSynthProvider:
+    def __init__(self, valobj, dict):
+        self.valobj = valobj
+
+    def update(self):
+        try:
+            ty = self.valobj.GetType()
+
+            self.size = self.valobj.GetChildMemberWithName('size_').GetValueAsUnsigned(0)
+
+            # absl::flat_hash_set<K, Hash, Eq, Alloc>
+            self.key_ty = ty.GetTemplateArgumentType(0)
+            self.ctrl = self.valobj.GetChildMemberWithName('ctrl_')
+            self.data_ty = self.valobj.GetChildMemberWithName('slots_').GetType().GetPointeeType()
+            self.pairs = [pair for pair in absl_hash_values(self.valobj, self.data_ty, self.key_ty)]
+
+        except:
+            self.size = 0
+
+        return False
+
+
+def get_child_index(self, name):
+    try:
+        return int(name.lstrip('[').rstrip(']'))
+    except:
+        return -1
+
+
+def get_child_at_index(self, index):
+    if index < 0:
+        return None
+
+    if index >= self.num_children():
+        return None
+
+    return self.pairs[index]
+
+
+def num_children(self):
+    if self.size is None:
+        self.update()
+
+    return self.size
 
 
 class AbslInlinedVectorSynthProvider:
