@@ -39,7 +39,8 @@ namespace dawn {
     }
 
     constexpr static PreservedAnalyses all() noexcept {
-      return PreservedAnalyses(~std::bitset<numDefaultAnalyses>{});
+      // `operator~` is only `constexpr` as of C++23
+      return PreservedAnalyses(std::bitset<numDefaultAnalyses>{std::numeric_limits<std::size_t>::max()});
     }
 
     template <typename T> void preserve() noexcept {

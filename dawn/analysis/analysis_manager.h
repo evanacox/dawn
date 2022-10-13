@@ -35,10 +35,10 @@ namespace dawn {
     // still pass it into functions that is defined in a different TU
     struct ComputedHash {
       // NOLINTNEXTLINE(google-explicit-constructor)
-      ComputedHash(std::type_index kind, Analysis analysis) noexcept
+      ComputedHash(std::type_index typeKind, Analysis analysisKind) noexcept
           : hash{absl::HashOf(kind)},
-            kind{kind},
-            analysis{analysis} {}
+            kind{typeKind},
+            analysis{analysisKind} {}
 
       std::size_t hash;     // NOLINT
       std::type_index kind; // NOLINT
