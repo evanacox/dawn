@@ -1112,3 +1112,6 @@ namespace dawn {
   DAWN_FOR_EACH_TERMINATOR_INST(MACRO)                                                                                 \
   DAWN_FOR_EACH_CONVERSION_INST(MACRO)                                                                                 \
   DAWN_FOR_EACH_BINARY_INST(MACRO)
+
+// this comment prevents a backslash-newline at EOF warning in GCC
+// without it, clang-format will format it back in
