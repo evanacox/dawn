@@ -35,4 +35,6 @@ namespace dawn {
 
     return std::make_optional(std::get<std::unique_ptr<Module>>(std::move(result)));
   }
+
+  std::optional<std::string> parseIRIntoExistingModule(std::string_view source, Module* mod) noexcept;
 } // namespace dawn

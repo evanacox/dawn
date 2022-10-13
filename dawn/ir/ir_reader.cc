@@ -394,9 +394,21 @@ namespace {
 
   class Parser {
   public:
-    explicit Parser(std::string_view source) : lex_{source}, mod_{std::make_unique<dawn::Module>()}, ib_{mod_.get()} {}
+    explicit Parser(std::string_view source)
+        : lex_{source},
+          ownedMod_{std::make_unique<dawn::Module>()},
+          mod_{ownedMod_.get()},
+          ib_{mod_} {}
+
+    explicit Parser(std::string_view source, dawn::Module* mod) noexcept : lex_{source}, mod_{mod}, ib_{mod_} {}
 
     std::unique_ptr<dawn::Module> parse() {
+      parseInto();
+
+      return std::move(ownedMod_);
+    }
+
+    void parseInto() {
       while (auto tok = lex_.next()) {
         switch (tok->type) {
           case Tok::keywordDecl: parseDecl(); break;
@@ -405,7 +417,14 @@ namespace {
         }
       }
 
-      return std::move(mod_);
+      // should be empty if the program is valid
+      for (const auto& [name, line] : functionsImplicitlyDeclared_) {
+        parseErrorAtLine(line, "function '", name, "' was called but not declared");
+      }
+
+      for (const auto& [name, line] : shouldBeProperlyCreated_) {
+        parseErrorAtLine(line, "basic block '", name, "' was referenced but never created");
+      }
     }
 
     void resetFnState() {
@@ -441,6 +460,9 @@ namespace {
       }
 
       expectType(Tok::symbolParenClose, "closing ')' for argument list");
+
+      // if the function was implicitly declared earlier, destroy it
+      functionsImplicitlyDeclared_.erase(fn->name());
 
       return fn;
     }
@@ -482,8 +504,9 @@ namespace {
     }
 
     void parseBlock() {
+      auto line = lex_.line();
       auto label = expectType(Tok::blockLabel, "block label");
-      auto* block = createOrGetBlock(label.raw);
+      auto* block = createBlock(label.raw, line);
       ib_.setInsertPoint(block);
 
       expectType(Tok::symbolColon, "':' following block label");
@@ -731,6 +754,8 @@ namespace {
 
           return it->second;
         }
+
+        parseError("unknown value '", tok->raw, "'");
       }
 
       return parseConstant(expected);
@@ -778,9 +803,10 @@ namespace {
       }
 
       expectType(Tok::symbolComma, "comma between value and label");
+      auto line = lex_.line();
       auto block = expectType(Tok::blockLabel, "incoming block name");
 
-      return PhiWorklistEntry{phi, std::move(nameOrValue), std::string{block.raw}, lex_.line()};
+      return PhiWorklistEntry{phi, std::move(nameOrValue), std::string{block.raw}, line};
     }
 
     void parseInst() { // NOLINT(readability-function-cognitive-complexity)
@@ -961,18 +987,27 @@ namespace {
 
         args.emplace_back(val);
 
-        if (lex_.peek() && lex_.peek()->type != Tok::symbolParenClose) {
+        if (auto next = lex_.peek(); next && next->type != Tok::symbolParenClose) {
           expectType(Tok::symbolComma, "expected ',' between arguments");
         }
       }
 
+      auto line = lex_.line();
       expectType(Tok::symbolParenClose, "')' after argument list");
 
       for (auto* val : args) {
         argTypes.push_back(val->type());
       }
 
-      auto* fn = ib_.createOrGetFunc(std::string{callee.raw.substr(1)}, retTy, argTypes);
+      auto name = std::string{callee.raw.substr(1)};
+
+      // if the function doesn't exist right now and calling `createOrGet` would create it,
+      // we add it to a list that we later check to see if those functions were declared later
+      if (!ib_.findFn(name)) {
+        functionsImplicitlyDeclared_.emplace(name, line);
+      }
+
+      auto* fn = ib_.createOrGetFunc(name, retTy, argTypes);
       auto fnArgs = fn->args();
 
       if (fn->returnTy() != retTy) {
@@ -989,7 +1024,7 @@ namespace {
         }
       }
 
-      return ib_.createCall(ib_.createOrGetFunc(std::string{callee.raw}, retTy, argTypes), args);
+      return ib_.createCall(fn, args);
     }
 
     [[nodiscard]] dawn::Value* parseSel() {
@@ -1009,9 +1044,10 @@ namespace {
     }
 
     [[nodiscard]] dawn::Value* parseBr() {
+      auto line = lex_.line();
       auto label = expectType(Tok::blockLabel, "block label");
 
-      return ib_.createBr(createOrGetBlock(label.raw));
+      return ib_.createBr(createOrGetBlock(label.raw, line));
     }
 
     [[nodiscard]] dawn::Value* parseCbr() {
@@ -1020,14 +1056,16 @@ namespace {
       expectType(Tok::symbolComma, "comma after 'cbr' condition");
       expectType(Tok::keywordIf, "'if' for 'cbr'");
       auto ifLabel = expectType(Tok::blockLabel, "block label for 'if'");
+      auto line = lex_.line();
 
       expectType(Tok::symbolComma, "comma after 'cbr' 'if'");
       expectType(Tok::keywordElse, "'else' for 'cbr'");
+
       auto elseLabel = expectType(Tok::blockLabel, "block label for 'else'");
 
       return ib_.createCbr(cond,
-          dawn::TrueBranch{createOrGetBlock(ifLabel.raw)},
-          dawn::FalseBranch{createOrGetBlock(elseLabel.raw)});
+          dawn::TrueBranch{createOrGetBlock(ifLabel.raw, line)},
+          dawn::FalseBranch{createOrGetBlock(elseLabel.raw, line)});
     }
 
     [[nodiscard]] dawn::Value* parseRet() {
@@ -1186,12 +1224,34 @@ namespace {
       return single;
     }
 
-    [[nodiscard]] dawn::BasicBlock* createOrGetBlock(std::string_view name) noexcept {
+    [[nodiscard]] dawn::BasicBlock* createBlock(std::string_view name, std::size_t line) {
+      name = name.substr(1);
+
+      if (bbLookup_.contains(name) && !shouldBeProperlyCreated_.contains(name)) {
+        parseErrorAtLine(line, "duplicate block name '", name, "'");
+      }
+
+      auto* block = createOrGetBlock(name, line);
+
+      shouldBeProperlyCreated_.erase(name);
+
+      return block;
+    }
+
+    [[nodiscard]] dawn::BasicBlock* createOrGetBlock(std::string_view name, std::size_t line) noexcept {
+      if (name.starts_with('%')) {
+        name = name.substr(1);
+      }
+
       if (auto it = bbLookup_.find(name); it != bbLookup_.end()) {
         return it->second;
       }
 
-      return bbLookup_.emplace(std::string{name}, ib_.createBlock()).first->second;
+      auto nameStr = std::string{name};
+      auto* block = ib_.createBlock(nameStr);
+      shouldBeProperlyCreated_.emplace(nameStr, line);
+
+      return bbLookup_.emplace(nameStr, block).first->second;
     }
 
     [[nodiscard]] dawn::Value* parseBoolCondition(std::string_view name) {
@@ -1243,13 +1303,21 @@ namespace {
 
   private:
     Lexer lex_;
-    std::unique_ptr<dawn::Module> mod_;
+    std::unique_ptr<dawn::Module> ownedMod_;
+    dawn::Module* mod_;
     dawn::IRBuilder ib_;
     std::vector<PhiWorklistEntry> worklist_;
+    // table of pointers to BBs based on their names
     absl::flat_hash_map<std::string, dawn::BasicBlock*> bbLookup_;
+    // table of BBs that were referenced and need to be explicitly created.
+    // once the BB is explicitly created it is removed from here, so if
+    // the IR is valid this should be empty by the end
+    absl::flat_hash_map<std::string, std::size_t> shouldBeProperlyCreated_;
+    // list of functions that were called by `call @fn` before they were declared
+    absl::flat_hash_map<std::string, std::size_t> functionsImplicitlyDeclared_;
     absl::flat_hash_map<std::string, dawn::Value*> valLookup_;
     std::size_t currentInst_ = 0;
-  }; // namespace
+  };
 
   absl::flat_hash_map<Tok, std::string> reverseLookup(const absl::flat_hash_map<std::string, Tok>& from) {
     auto res = absl::flat_hash_map<Tok, std::string>{};
@@ -1383,6 +1451,16 @@ namespace {
 std::variant<std::unique_ptr<dawn::Module>, std::string> dawn::parseIRFromText(std::string_view source) noexcept {
   try {
     return Parser(source).parse();
+  } catch (const ParsingError& err) {
+    return std::string{err.what()};
+  }
+}
+
+std::optional<std::string> dawn::parseIRIntoExistingModule(std::string_view source, dawn::Module* mod) noexcept {
+  try {
+    Parser(source, mod).parseInto();
+
+    return std::nullopt;
   } catch (const ParsingError& err) {
     return std::string{err.what()};
   }
