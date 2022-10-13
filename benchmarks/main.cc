@@ -17,13 +17,13 @@
 #include "benchmark/benchmark.h"
 
 namespace {
-  void BM_sanity(benchmark::State& state) noexcept {
+  void sanity(benchmark::State& state) noexcept {
     for (auto _ : state) {
       // ...
     }
   }
 } // namespace
 
-BENCHMARK(BM_sanity);
+BENCHMARK(sanity);
 
 BENCHMARK_MAIN();
