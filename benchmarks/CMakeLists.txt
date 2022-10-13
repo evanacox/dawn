@@ -4,7 +4,6 @@ include(../cmake/project-is-top-level.cmake)
 
 # ---- Dependencies ----
 
-find_package(benchmark REQUIRED)
 enable_testing()
 
 # ---- Benches ----

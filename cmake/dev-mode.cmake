@@ -8,6 +8,7 @@ endif ()
 
 option(DAWN_ENABLE_BENCHMARKS "Enable building benchmarks" OFF)
 if (DAWN_ENABLE_BENCHMARKS)
+    add_subdirectory(vendor/benchmark)
     add_subdirectory(benchmarks)
 endif ()
 
