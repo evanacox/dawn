@@ -14,13 +14,25 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "absl/flags/flag.h"
-#include "absl/flags/parse.h"
-#include "dawn/ir/ir_reader.h"
+#pragma once
 
-ABSL_FLAG(std::string, name, "", "the filename to read");
+#include <cstddef>
+#include <memory>
+#include <stack>
+#include <vector>
 
-int main(int argc, char** argv) {
-  auto positional = absl::ParseCommandLine(argc, argv);
-  //
-}
+namespace dawn {
+  class Stack {
+  public:
+    void enterFrame() noexcept;
+
+    void leaveFrame() noexcept;
+
+    [[nodiscard]] std::byte* alloc(std::size_t bytes) noexcept;
+
+  private:
+    using Chunk = std::array<unsigned char, 4096>;
+
+    std::vector<std::unique_ptr<Chunk>> storage_;
+  };
+} // namespace dawn

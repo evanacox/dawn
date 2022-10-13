@@ -22,4 +22,4 @@
 #include "./utility/file.h"
 #include "./utility/rtti.h"
 #include "./utility/strong_types.h"
-namespace dawn {}
+#include "./utility/version.h"

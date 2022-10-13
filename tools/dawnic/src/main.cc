@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
   absl::ParseCommandLine(argc, argv);
 
   auto data = dawn::readEntireFile(absl::GetFlag(FLAGS_name));
-  auto mod = dawn::parseIRFromText(data.value());
+  auto mod = dawn::parseIRFromText(data.value_or(""));
 
   if (auto* err = std::get_if<std::string>(&mod)) {
     std::cerr << *err << '\n';

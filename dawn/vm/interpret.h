@@ -14,13 +14,4 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "absl/flags/flag.h"
-#include "absl/flags/parse.h"
-#include "dawn/ir/ir_reader.h"
-
-ABSL_FLAG(std::string, name, "", "the filename to read");
-
-int main(int argc, char** argv) {
-  auto positional = absl::ParseCommandLine(argc, argv);
-  //
-}
+#pragma once
