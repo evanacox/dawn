@@ -12,6 +12,10 @@ Checks: >
   -bugprone-argument-comment,
   -readability-uppercase-literal-suffix,
   -modernize-use-trailing-return-type,
+  -misc-confusable-identifiers
+
+# misc-confusable-identifiers causes several files to take 5+ minutes to pass checks,
+# this is a known regression in clang-tidy 15.0.0 but no fix has been given
 
 HeaderFilterRegex: 'include/dawn/*'
 WarningsAsErrors: '*'
