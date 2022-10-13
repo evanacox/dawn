@@ -34,15 +34,21 @@ add_dawn_library(dawn_dawn
         ./dawn/ir/basic_block.cc
         ./dawn/ir/ir_builder.cc
         ./dawn/ir/function.cc
+        ./dawn/ir/constant.cc
+        ./dawn/ir/ir_writer.cc
+        ./dawn/ir/ir_reader.cc
         ./dawn/ir/internal/type_manager.cc
         ./dawn/ir/internal/function_manager.cc
         ./dawn/ir/internal/instruction_manager.cc
         ./dawn/ir/internal/string_pool.cc
         ./dawn/ir/internal/constant_pool.cc
-        ./dawn/ir/ir_writer.cc
-        ./dawn/ir/ir_reader.cc
         ./dawn/utility/file.cc
-        ./dawn/analysis/cfg_edges.cc)
+        ./dawn/utility/assertions.cc
+        ./dawn/utility/apint.cc
+        ./dawn/analysis/cfg_analysis.cc
+        ./dawn/analysis/analysis_passes.cc
+        ./dawn/analysis/analysis_manager.cc
+        ./dawn/passes/pass.cc
 
 include(GenerateExportHeader)
 generate_export_header(

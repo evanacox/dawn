@@ -25,6 +25,7 @@ add_dawn_executable(dawn_unittests
         INCLUDES ./
         FILES
         ./helpers/random.cc
+        ./helpers/sample_programs.cc
         ./sanity.cc
         ../dawn/ir/internal/type_manager.test.cc
         ../dawn/ir/types.test.cc
@@ -33,7 +34,8 @@ add_dawn_executable(dawn_unittests
         ../dawn/ir/instructions.test.cc
         ../dawn/utility/apint.test.cc
         ../dawn/adt/deep_hash_table.test.cc
-        ../dawn/ir/module.test.cc)
+        ../dawn/ir/module.test.cc
+        ../dawn/analysis/cfg_analysis.test.cc)
 
 include(GoogleTest)
 gtest_discover_tests(dawn_unittests)

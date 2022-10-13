@@ -14,9 +14,12 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/module.h"
-#include "dawn/ir/ir_writer.h"
+#include "dawn/passes/pass.h"
 
 namespace dawn {
-  Module::Module() : tys_{&pool_} {}
+  void FunctionPass::run(Module* mod, AnalysisManager* manager) noexcept {
+    for (auto& [_, fn] : mod->allFunctions()) {
+      run(fn.get(), manager);
+    }
+  }
 } // namespace dawn

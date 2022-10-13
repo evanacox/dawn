@@ -14,9 +14,44 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/module.h"
-#include "dawn/ir/ir_writer.h"
+#pragma once
+
+#include "../config.h"
+#include "../ir/module.h"
+#include "./analyses.h"
+#include "absl/container/inlined_vector.h"
+#include <bitset>
+#include <cstddef>
 
 namespace dawn {
-  Module::Module() : tys_{&pool_} {}
+  class DAWN_PUBLIC AnalysisPass {
+  public:
+    virtual ~AnalysisPass() = default;
+
+    [[nodiscard]] Analysis kind() const noexcept {
+      return kind_;
+    }
+
+    virtual void run(const Module& mod, class AnalysisManager* manager) noexcept = 0;
+
+  protected:
+    template <typename T> explicit AnalysisPass(T* /*unused*/) noexcept : kind_{T::kind} {}
+
+  private:
+    Analysis kind_;
+  };
+
+  class DAWN_PUBLIC FunctionAnalysisPass : public AnalysisPass {
+  public:
+    [[nodiscard]] static bool instanceOf(const AnalysisPass& pass) noexcept {
+      return pass.kind() >= Analysis::functionPassBegin && pass.kind() <= Analysis::functionPassEnd;
+    }
+
+    void run(const Module& mod, class AnalysisManager* manager) noexcept override;
+
+    virtual void run(const Function& fn, class AnalysisManager* manager) noexcept = 0;
+
+  protected:
+    template <typename T> explicit FunctionAnalysisPass(T* ptr) noexcept : AnalysisPass{ptr} {}
+  };
 } // namespace dawn

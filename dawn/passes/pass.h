@@ -14,9 +14,26 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/ir/module.h"
-#include "dawn/ir/ir_writer.h"
+#pragma once
+
+#include "../analysis/analyses.h"
+#include "../analysis/analysis_manager.h"
+#include "../config.h"
+#include "../ir/function.h"
+#include "../ir/module.h"
 
 namespace dawn {
-  Module::Module() : tys_{&pool_} {}
+  class DAWN_PUBLIC Pass {
+  public:
+    virtual ~Pass() = default;
+
+    virtual void run(Module* mod, AnalysisManager* manager) noexcept = 0;
+  };
+
+  class DAWN_PUBLIC FunctionPass : public Pass {
+  public:
+    void run(Module* mod, AnalysisManager* manager) noexcept override;
+
+    virtual void run(Function* fn, AnalysisManager* manager) noexcept = 0;
+  };
 } // namespace dawn
