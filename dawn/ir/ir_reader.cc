@@ -291,6 +291,8 @@ namespace {
     }
 
     std::optional<Token> nextTok() {
+      skipWs();
+
       if (curr_ >= source_.size()) {
         return std::nullopt;
       }
@@ -355,7 +357,7 @@ namespace {
     }
 
     void skipWs() noexcept {
-      while (absl::ascii_isspace(static_cast<unsigned char>(peekCh())) || peekCh() == ';') {
+      while (curr_ < source_.size() && (absl::ascii_isspace(static_cast<unsigned char>(peekCh())) || peekCh() == ';')) {
         if (peekCh() == ';') {
           while (eatCh() != '\n') {
             // ...

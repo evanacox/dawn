@@ -32,7 +32,7 @@ namespace dawn::tests {
   %if.true:
     br %merge
 
-  %if.false
+  %if.false:
     br %merge
 
   %merge:
@@ -51,7 +51,7 @@ namespace dawn::tests {
     $2 = icmp eq i32 $0, $1
     cbr bool $2, if %exit, else %loop.body
 
-  %loop.body
+  %loop.body:
     br %loop.latch
 
   %loop.latch:

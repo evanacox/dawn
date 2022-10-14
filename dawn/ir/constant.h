@@ -138,7 +138,7 @@ namespace dawn {
 
   class DAWN_PUBLIC ConstantStruct final : public Constant {
   public:
-    inline constexpr static ValueKind kind = ValueKind::constArray;
+    inline constexpr static ValueKind kind = ValueKind::constStruct;
 
     explicit ConstantStruct(Type* ty, std::span<Constant* const> values) noexcept : Constant(this, ty, false) {
       DAWN_ASSERT(isa<Struct>(ty), "type must be a struct for `ConstantStruct`");

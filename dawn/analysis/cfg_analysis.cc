@@ -59,7 +59,13 @@ namespace {
       return;
     }
 
-    for (const auto* successor : all->at(bb).directEdges()) {
+    auto size = all->at(bb).directEdges().size();
+
+    // we have to modify the map **and** potentially the edge vector during iteration,
+    // so we need to main indices instead of pointers to avoid pointing into previous allocations
+    for (auto i = std::size_t{0}; i < size; ++i) {
+      const auto* successor = all->at(bb).directEdges()[i];
+
       for (const auto* pred : *addTo) {
         all->at(pred).addIndirectEdge(successor);
       }
