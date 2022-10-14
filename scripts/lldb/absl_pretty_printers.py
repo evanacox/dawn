@@ -15,19 +15,17 @@ def __lldb_init_module(debugger, *_args):
 
 
 def absl_hash_values(val, slot_ty, pair_ty):
-    size = val.GetChildMemberWithName("size_")
-
-    if size.GetValueAsUnsigned(0) == 0:
+    if val.GetChildMemberWithName("size_").GetValueAsUnsigned(0) == 0:
         return
 
-    capacity = val.GetChildMemberWithName("capacity_").GetValueAsUnsigned(0)
     ctrl = val.GetChildMemberWithName("ctrl_")
     ctrl_ty = ctrl.GetType().GetPointeeType()
     slots = val.GetChildMemberWithName("slots_")
     slot_size = slot_ty.GetByteSize()
 
-    for i in range(capacity):
-        ctrl_t = ctrl.CreateChildAtOffset("", i, ctrl_ty).GetValueAsUnsigned(0)
+    for i in range(val.GetChildMemberWithName("capacity_").GetValueAsUnsigned(0)):
+        # note: not unsigned. certain 'negative' bit patterns map to tombstones/no value
+        ctrl_t = ctrl.CreateChildAtOffset("", i, ctrl_ty).GetValueAsSigned(0)
 
         if ctrl_t >= 0:
             yield slots.CreateChildAtOffset(f"[{i}]", i * slot_size, pair_ty)
@@ -90,8 +88,8 @@ class AbslFlatHashSetSynthProvider:
 
             # absl::flat_hash_set<K, Hash, Eq, Alloc>
             self.key_ty = ty.GetTemplateArgumentType(0)
+            self.data_ty = ty.GetTemplateArgumentType(4).GetTemplateArgumentType(0)
             self.ctrl = self.valobj.GetChildMemberWithName('ctrl_')
-            self.data_ty = self.valobj.GetChildMemberWithName('slots_').GetType().GetPointeeType()
             self.pairs = [pair for pair in absl_hash_values(self.valobj, self.data_ty, self.key_ty)]
 
         except:
@@ -99,29 +97,26 @@ class AbslFlatHashSetSynthProvider:
 
         return False
 
+    def get_child_index(self, name):
+        try:
+            return int(name.lstrip('[').rstrip(']'))
+        except:
+            return -1
 
-def get_child_index(self, name):
-    try:
-        return int(name.lstrip('[').rstrip(']'))
-    except:
-        return -1
+    def get_child_at_index(self, index):
+        if index < 0:
+            return None
 
+        if index >= self.num_children():
+            return None
 
-def get_child_at_index(self, index):
-    if index < 0:
-        return None
+        return self.pairs[index]
 
-    if index >= self.num_children():
-        return None
+    def num_children(self):
+        if self.size is None:
+            self.update()
 
-    return self.pairs[index]
-
-
-def num_children(self):
-    if self.size is None:
-        self.update()
-
-    return self.size
+        return self.size
 
 
 class AbslInlinedVectorSynthProvider:
