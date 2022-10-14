@@ -8,8 +8,15 @@ enable_testing()
 
 # ---- Benches ----
 
+# see https://github.com/google/benchmark/issues/202
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(DAWN_BENCHMARK_EXTRA_LIBS "Shlwapi.lib")
+else ()
+    set(DAWN_BENCHMARK_EXTRA_LIBS)
+endif ()
+
 add_dawn_executable(dawn_benches
-        DEPENDS dawn::dawn benchmark::benchmark
+        DEPENDS dawn::dawn benchmark::benchmark ${DAWN_BENCHMARK_EXTRA_LIBS}
         FILES
         ./main.cc)
 
