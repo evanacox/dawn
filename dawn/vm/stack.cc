@@ -14,16 +14,5 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "benchmark/benchmark.h"
+#include "dawn/vm/stack.h"
 
-namespace {
-  void sanity(benchmark::State& state) noexcept {
-    for (auto _ : state) {
-      // ...
-    }
-  }
-} // namespace
-
-BENCHMARK(sanity);
-
-BENCHMARK_MAIN();

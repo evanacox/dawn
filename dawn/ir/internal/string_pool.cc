@@ -14,16 +14,12 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "benchmark/benchmark.h"
+#include "dawn/ir/internal/string_pool.h"
 
-namespace {
-  void sanity(benchmark::State& state) noexcept {
-    for (auto _ : state) {
-      // ...
-    }
+namespace dawn::internal {
+  InternedString StringPool::intern(std::string str) noexcept {
+    auto [it, _] = cache_.insert(std::make_unique<std::string>(std::move(str)));
+
+    return InternedString((*it)->c_str());
   }
-} // namespace
-
-BENCHMARK(sanity);
-
-BENCHMARK_MAIN();
+} // namespace dawn::internal

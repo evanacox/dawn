@@ -78,6 +78,7 @@
       ],
       "cacheVariables": {
         "DAWN_ENABLE_TESTS": "ON",
+        "DAWN_ENABLE_BENCHMARKS": "ON",
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
@@ -92,6 +93,7 @@
       "hidden": true,
       "cacheVariables": {
         "DAWN_ENABLE_TESTS": "ON",
+        "DAWN_ENABLE_BENCHMARKS": "ON",
         "CMAKE_BUILD_TYPE": "Release"
       }
     },

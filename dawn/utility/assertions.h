@@ -55,7 +55,7 @@ namespace dawn::internal {
     uint_least32_t line_ = 0;
   };
 
-  [[noreturn]] DAWN_PUBLIC void assertFail(const char* condition_string,
+  [[noreturn]] DAWN_PUBLIC void assertFail(const char* conditionString,
       const char* explanation,
       SourceLocation loc = SourceLocation::current()) noexcept;
 

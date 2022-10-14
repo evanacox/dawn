@@ -31,7 +31,7 @@ namespace dawn {
     [[nodiscard]] explicit IRBuilder(Module* mod) noexcept;
 
     [[nodiscard]] OptionalPtr<BasicBlock> currentBlock() noexcept {
-      return curr_block_;
+      return currBlock_;
     }
 
     Function* createFunc(std::string name) noexcept {
@@ -76,37 +76,61 @@ namespace dawn {
       return mod_->findFunc(name);
     }
 
-    BasicBlock* createBlock() noexcept {
-      DAWN_ASSERT(curr_fn_, "must have a function to put the block in. use `setInsertFn`");
+    [[nodiscard]] BasicBlock* createBlock() noexcept {
+      DAWN_ASSERT(currFn_, "must have a function to put the block in. use `setInsertFn`");
 
-      return curr_fn_->addBlock(BasicBlock{curr_fn_.get()});
+      return currFn_->addBlock(BasicBlock{currFn_.get(), internal::MaybeInternedString{nullptr}});
     }
 
-    BasicBlock* createBlock(Function* fn) noexcept {
-      curr_fn_ = dawn::some(fn);
+    BasicBlock* createBlock(std::string name) noexcept {
+      DAWN_ASSERT(currFn_, "must have a function to put the block in. use `setInsertFn`");
 
-      return createBlock();
+      auto interned = mod_->strs_.intern(std::move(name));
+
+      return currFn_->addBlock(BasicBlock{currFn_.get(), internal::MaybeInternedString{interned}});
+    }
+
+    [[nodiscard]] std::optional<BasicBlock*> findBlockWithName(std::string_view name) noexcept {
+      if (!currFn_) {
+        return std::nullopt;
+      }
+
+      for (auto& bb : currFn_->blocks()) {
+        if (bb.name() == name) {
+          return &bb;
+        }
+      }
+
+      return std::nullopt;
+    }
+
+    [[nodiscard]] BasicBlock* findOrCreateBlock(std::string_view name) noexcept {
+      if (auto block = findBlockWithName(name)) {
+        return *block;
+      }
+
+      return createBlock(std::string{name});
     }
 
     void setInsertBlock(BasicBlock* block) noexcept {
-      curr_block_ = dawn::some(block);
+      currBlock_ = dawn::some(block);
     }
 
     void clearInsertBlock() noexcept {
-      curr_block_ = dawn::none<BasicBlock>();
+      currBlock_ = dawn::none<BasicBlock>();
     }
 
     void setInsertFn(Function* fn) noexcept {
-      curr_fn_ = dawn::some(fn);
+      currFn_ = dawn::some(fn);
     }
 
     void clearInsertFn() noexcept {
-      curr_fn_ = dawn::none<Function>();
+      currFn_ = dawn::none<Function>();
     }
 
     void setInsertPoint(BasicBlock* bb) noexcept {
-      curr_fn_ = dawn::some(bb->parent());
-      curr_block_ = dawn::some(bb);
+      currFn_ = dawn::some(bb->parent());
+      currBlock_ = dawn::some(bb);
     }
 
     [[nodiscard]] Type* i8Ty() const noexcept {
@@ -382,15 +406,15 @@ namespace dawn {
     }
 
     Ret* createRet(Value* val) noexcept {
-      return createRawInstruction<Ret>(curr_block_.get(), val);
+      return createRawInstruction<Ret>(currBlock_.get(), val);
     }
 
     Ret* createRetVoid() noexcept {
-      return createRawInstruction<Ret>(curr_block_.get());
+      return createRawInstruction<Ret>(currBlock_.get());
     }
 
     Unreachable* createUnreachable() noexcept {
-      return createRawInstruction<Unreachable>(curr_block_.get());
+      return createRawInstruction<Unreachable>(currBlock_.get());
     }
 
     Alloca* createAlloca(Type* ty) noexcept {
@@ -566,7 +590,7 @@ namespace dawn {
 
     BumpAlloc* pool_;
     Module* mod_;
-    OptionalPtr<Function> curr_fn_ = dawn::none<Function>();
-    OptionalPtr<BasicBlock> curr_block_ = dawn::none<BasicBlock>();
+    OptionalPtr<Function> currFn_ = dawn::none<Function>();
+    OptionalPtr<BasicBlock> currBlock_ = dawn::none<BasicBlock>();
   };
 } // namespace dawn

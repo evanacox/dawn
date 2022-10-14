@@ -14,16 +14,13 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "benchmark/benchmark.h"
+#include "dawn/analysis/analysis_passes.h"
+#include "dawn/analysis/analysis_manager.h"
 
-namespace {
-  void sanity(benchmark::State& state) noexcept {
-    for (auto _ : state) {
-      // ...
+namespace dawn {
+  void FunctionAnalysisPass::run(const Module& mod, class AnalysisManager* manager) noexcept {
+    for (const auto& [_, fn] : mod.allFunctions()) {
+      run(*fn, manager);
     }
   }
-} // namespace
-
-BENCHMARK(sanity);
-
-BENCHMARK_MAIN();
+} // namespace dawn

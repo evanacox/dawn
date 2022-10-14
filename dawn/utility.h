@@ -19,6 +19,7 @@
 #include "./utility/apint.h"
 #include "./utility/assertions.h"
 #include "./utility/bump_alloc.h"
+#include "./utility/file.h"
 #include "./utility/rtti.h"
-
-namespace dawn {}
+#include "./utility/strong_types.h"
+#include "./utility/version.h"

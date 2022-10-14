@@ -27,90 +27,6 @@
 #include <vector>
 
 namespace dawn {
-  class DAWN_PUBLIC BinaryInst : public Instruction {
-  public:
-    [[nodiscard]] static bool instanceOf(const Value* val) {
-      return val->kind() >= ValueKind::binaryInstBegin && val->kind() <= ValueKind::binaryInstEnd;
-    }
-
-    [[nodiscard]] const Value* lhs() const noexcept {
-      return this->operands()[0];
-    }
-
-    [[nodiscard]] const Value* rhs() const noexcept {
-      return this->operands()[1];
-    }
-
-    [[nodiscard]] Value* lhs() noexcept {
-      return this->operands()[0];
-    }
-
-    [[nodiscard]] Value* rhs() noexcept {
-      return this->operands()[1];
-    }
-
-  protected:
-    template <typename T>
-    BinaryInst(T* ptr, Type* ty, Value* lhs, Value* rhs) noexcept : Instruction(ptr, ty, {lhs, rhs}) {}
-  };
-
-  class DAWN_PUBLIC TerminatorInst : public Instruction {
-  public:
-    [[nodiscard]] static bool instanceOf(const Value* val) {
-      return val->kind() >= ValueKind::terminatorsInstBegin && val->kind() <= ValueKind::terminatorsInstEnd;
-    }
-
-    [[nodiscard]] bool canBranchTo(BasicBlock* value) const noexcept {
-      return std::find(references_.begin(), references_.end(), value) != references_.end();
-    }
-
-    void replaceBranchTarget(const BasicBlock* old_target, ReplaceWith<BasicBlock*> new_target) noexcept {
-      std::replace(references_.begin(), references_.end(), const_cast<BasicBlock*>(old_target), new_target.value);
-    }
-
-  protected:
-    template <typename T>
-    TerminatorInst(T* ptr,
-        BasicBlock* any,
-        std::initializer_list<BasicBlock*> blocks,
-        std::initializer_list<Value*> values) noexcept
-        : Instruction(ptr, any->parent()->parent()->voidType(), values),
-          references_{blocks} {}
-
-    [[nodiscard]] std::span<BasicBlock* const> refs() const noexcept {
-      return references_;
-    }
-
-  private:
-    absl::InlinedVector<BasicBlock*, 2> references_;
-  };
-
-  class DAWN_PUBLIC ConversionInst : public Instruction {
-  public:
-    [[nodiscard]] static bool instanceOf(const Value* val) {
-      return val->kind() >= ValueKind::conversionInstBegin && val->kind() <= ValueKind::conversionInstEnd;
-    }
-
-    [[nodiscard]] Type* into() const noexcept {
-      return type();
-    }
-
-    [[nodiscard]] Type* fromTy() const noexcept {
-      return from()->type();
-    }
-
-    [[nodiscard]] const Value* from() const noexcept {
-      return this->operands()[0];
-    }
-
-    [[nodiscard]] Value* from() noexcept {
-      return this->operands()[0];
-    }
-
-  protected:
-    template <typename T> ConversionInst(T* ptr, Type* ty, Value* lhs) noexcept : Instruction(ptr, ty, {lhs}) {}
-  };
-
   class DAWN_PUBLIC Phi final : public Instruction {
   public:
     inline static constexpr ValueKind kind = ValueKind::phiInst;
@@ -303,10 +219,11 @@ namespace dawn {
   public:
     inline static constexpr ValueKind kind = ValueKind::brInst;
 
-    explicit Br(BasicBlock* target) noexcept : TerminatorInst(this, target, {target}, {}) {}
+    explicit Br(BasicBlock* target) noexcept
+        : TerminatorInst(this, target->parent()->parent()->voidType(), {target}, {}) {}
 
     [[nodiscard]] BasicBlock* target() const noexcept {
-      return this->refs()[0];
+      return this->possibleBranchTargets()[0];
     }
 
   protected:
@@ -320,7 +237,10 @@ namespace dawn {
     inline static constexpr ValueKind kind = ValueKind::cbrInst;
 
     explicit CondBr(Value* cond, TrueBranch true_branch, FalseBranch false_branch) noexcept
-        : TerminatorInst(this, true_branch.target, {true_branch.target, false_branch.target}, {cond}) {}
+        : TerminatorInst(this,
+            true_branch.target->parent()->parent()->voidType(),
+            {true_branch.target, false_branch.target},
+            {cond}) {}
 
     [[nodiscard]] const Value* cond() const noexcept {
       return this->operands()[0];
@@ -331,19 +251,19 @@ namespace dawn {
     }
 
     [[nodiscard]] const BasicBlock* trueBranch() const noexcept {
-      return this->refs()[0];
+      return this->possibleBranchTargets()[0];
     }
 
     [[nodiscard]] BasicBlock* trueBranch() noexcept {
-      return this->refs()[0];
+      return this->possibleBranchTargets()[0];
     }
 
     [[nodiscard]] const BasicBlock* falseBranch() const noexcept {
-      return this->refs()[1];
+      return this->possibleBranchTargets()[1];
     }
 
     [[nodiscard]] BasicBlock* falseBranch() noexcept {
-      return this->refs()[1];
+      return this->possibleBranchTargets()[1];
     }
 
   protected:
@@ -356,9 +276,10 @@ namespace dawn {
   public:
     inline constexpr static ValueKind kind = ValueKind::retInst;
 
-    explicit Ret(BasicBlock* parent, Value* return_value) : TerminatorInst(this, parent, {}, {return_value}) {}
+    explicit Ret(BasicBlock* parent, Value* return_value)
+        : TerminatorInst(this, parent->parent()->parent()->voidType(), {}, {return_value}) {}
 
-    explicit Ret(BasicBlock* parent) : TerminatorInst(this, parent, {}, {}) {}
+    explicit Ret(BasicBlock* parent) : TerminatorInst(this, parent->parent()->parent()->voidType(), {}, {}) {}
 
     [[nodiscard]] OptionalPtr<const Value> returnValue() const noexcept {
       if (operands().empty()) {
@@ -386,7 +307,8 @@ namespace dawn {
   public:
     inline static constexpr ValueKind kind = ValueKind::unreachableInst;
 
-    explicit Unreachable(BasicBlock* any) noexcept : TerminatorInst(this, any, {}, {}) {}
+    explicit Unreachable(BasicBlock* any) noexcept
+        : TerminatorInst(this, any->parent()->parent()->voidType(), {}, {}) {}
 
   protected:
     void hash(absl::HashState state) const noexcept final;
@@ -1129,6 +1051,13 @@ namespace dawn {
 
     bool equals(const Value* val) const noexcept final;
   };
+} // namespace dawn
+
+#define DAWN_FOR_EACH_TERMINATOR_INST(MACRO)                                                                           \
+  MACRO(Br)                                                                                                            \
+  MACRO(CondBr)                                                                                                        \
+  MACRO(Ret)                                                                                                           \
+  MACRO(Unreachable)
 
 #define DAWN_FOR_EACH_CONVERSION_INST(MACRO)                                                                           \
   MACRO(Sext)                                                                                                          \
@@ -1164,24 +1093,25 @@ namespace dawn {
   MACRO(FDiv)                                                                                                          \
   MACRO(FRem)
 
-#define DAWN_FOR_EACH_INST(MACRO)                                                                                      \
+#define DAWN_FOR_EACH_MISC_INST(MACRO)                                                                                 \
   MACRO(Phi)                                                                                                           \
   MACRO(Call)                                                                                                          \
-  MACRO(ICmp)                                                                                                          \
-  MACRO(FCmp)                                                                                                          \
   MACRO(Sel)                                                                                                           \
-  MACRO(Br)                                                                                                            \
-  MACRO(CondBr)                                                                                                        \
-  MACRO(Ret)                                                                                                           \
-  MACRO(Unreachable)                                                                                                   \
+  MACRO(Extract)                                                                                                       \
+  MACRO(Insert)                                                                                                        \
+  MACRO(ElemPtr)                                                                                                       \
   MACRO(Alloca)                                                                                                        \
   MACRO(Load)                                                                                                          \
   MACRO(Store)                                                                                                         \
   MACRO(Offset)                                                                                                        \
-  MACRO(Extract)                                                                                                       \
-  MACRO(Insert)                                                                                                        \
-  MACRO(ElemPtr)                                                                                                       \
-  MACRO(Store)                                                                                                         \
-  DAWN_FOR_EACH_CONVERSION_INST(MACRO);                                                                                \
+  MACRO(ICmp)                                                                                                          \
+  MACRO(FCmp)
+
+#define DAWN_FOR_EACH_INST(MACRO)                                                                                      \
+  DAWN_FOR_EACH_MISC_INST(MACRO)                                                                                       \
+  DAWN_FOR_EACH_TERMINATOR_INST(MACRO)                                                                                 \
+  DAWN_FOR_EACH_CONVERSION_INST(MACRO)                                                                                 \
   DAWN_FOR_EACH_BINARY_INST(MACRO)
-} // namespace dawn
+
+// this comment prevents a backslash-newline at EOF warning in GCC
+// without it, clang-format will format it back in

@@ -14,16 +14,12 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "benchmark/benchmark.h"
+#pragma once
 
-namespace {
-  void sanity(benchmark::State& state) noexcept {
-    for (auto _ : state) {
-      // ...
-    }
+namespace dawn {
+  template <typename... Ts, typename Fn> void forEachTy(Fn f) noexcept {
+    (f.template operator()<Ts>(), ...);
   }
-} // namespace
 
-BENCHMARK(sanity);
-
-BENCHMARK_MAIN();
+  template <typename T> inline constexpr bool dependentFalse = false;
+} // namespace dawn

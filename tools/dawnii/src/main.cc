@@ -14,12 +14,13 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
+#include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
-#include "dawn/dawn.h"
-#include <unordered_map>
+#include "dawn/ir/ir_reader.h"
 
-int main() {
-  std::unordered_map<std::string, int> keys{{"a", 1}, {"b", 2}, {"jee", 3}};
+ABSL_FLAG(std::string, name, "", "the filename to read");
 
-  (void)0;
+int main(int argc, char** argv) {
+  auto positional = absl::ParseCommandLine(argc, argv);
+  //
 }

@@ -11,12 +11,12 @@ set(DAWN_FORMAT_PATTERNS
         include/*.h
         CACHE STRING
         "; separated patterns relative to the project source dir to format"
-)
+        )
 
 option(DAWN_FORMAT_COMMAND "Formatter to use" "clang-tidy")
 
 add_custom_target(
-        format-check
+        lint_format_check
         COMMAND "${CMAKE_COMMAND}"
         -D "FORMAT_COMMAND=${DAWN_FORMAT_COMMAND}"
         -D "PATTERNS=${DAWN_FORMAT_PATTERNS}"
@@ -27,7 +27,7 @@ add_custom_target(
 )
 
 add_custom_target(
-        format-fix
+        lint_format_fix
         COMMAND "${CMAKE_COMMAND}"
         -D "FORMAT_COMMAND=${DAWN_FORMAT_COMMAND}"
         -D "PATTERNS=${DAWN_FORMAT_PATTERNS}"

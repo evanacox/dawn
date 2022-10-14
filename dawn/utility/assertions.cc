@@ -19,7 +19,7 @@
 #include <cstdlib>
 
 namespace {
-  [[noreturn]] void abort_fast() noexcept {
+  [[noreturn]] void abortFast() noexcept {
 #if defined _WIN32 || defined __CYGWIN__
     __debugbreak();
     std::abort();
@@ -30,9 +30,9 @@ namespace {
 } // namespace
 
 namespace dawn {
-  void internal::assertFail(const char* condition_string, const char* explanation, SourceLocation loc) noexcept {
+  void internal::assertFail(const char* conditionString, const char* explanation, SourceLocation loc) noexcept {
     auto out = absl::StrFormat("[dawn] assertion failed: '%s'\n  explanation: '%s'\n  location: %s:%d (in %s)\n",
-        condition_string,
+        conditionString,
         explanation,
         loc.filename(),
         loc.line(),
@@ -40,7 +40,7 @@ namespace dawn {
 
     std::fputs(out.c_str(), stderr);
 
-    abort_fast();
+    abortFast();
   }
 
   void internal::unreachable(const char* explanation, SourceLocation loc) noexcept {
@@ -52,6 +52,6 @@ namespace dawn {
 
     std::fputs(out.c_str(), stderr);
 
-    abort_fast();
+    abortFast();
   }
 } // namespace dawn

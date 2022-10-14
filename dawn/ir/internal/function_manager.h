@@ -38,33 +38,33 @@ namespace dawn::internal {
 
   class FunctionRange {
   public:
-    explicit FunctionRange(FunctionManager* manager) : fn_manager_{manager} {}
+    explicit FunctionRange(FunctionManager* manager) : fnManager_{manager} {}
 
     decltype(auto) begin() {
-      return fn_manager_->functions_.begin();
+      return fnManager_->functions_.begin();
     }
 
     decltype(auto) end() {
-      return fn_manager_->functions_.end();
+      return fnManager_->functions_.end();
     }
 
   private:
-    FunctionManager* fn_manager_;
+    FunctionManager* fnManager_;
   };
 
   class ReadonlyFunctionRange {
   public:
-    explicit ReadonlyFunctionRange(const FunctionManager* manager) : fn_manager_{manager} {}
+    explicit ReadonlyFunctionRange(const FunctionManager* manager) : fnManager_{manager} {}
 
     decltype(auto) begin() {
-      return fn_manager_->functions_.begin();
+      return fnManager_->functions_.begin();
     }
 
     decltype(auto) end() {
-      return fn_manager_->functions_.end();
+      return fnManager_->functions_.end();
     }
 
   private:
-    const FunctionManager* fn_manager_;
+    const FunctionManager* fnManager_;
   };
 } // namespace dawn::internal

@@ -12,6 +12,12 @@ Checks: >
   -bugprone-argument-comment,
   -readability-uppercase-literal-suffix,
   -modernize-use-trailing-return-type,
+  -misc-confusable-identifiers,
+  -bugprone-reserved-identifier,
+  -readability-identifier-naming
+
+# misc-confusable-identifiers causes several files to take 5+ minutes to pass checks,
+# this is a known regression in clang-tidy 15.0.0 but no fix has been given
 
 HeaderFilterRegex: 'include/dawn/*'
 WarningsAsErrors: '*'
@@ -48,35 +54,7 @@ CheckOptions:
     value: 'true'
   - key: 'readability-magic-numbers.IgnorePowersOf2IntegerValues'
     value: 1
-  - key: 'readability-identifier-naming.NamespaceCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.ClassCase'
-    value: 'CamelCase'
-  - key: 'readability-identifier-naming.StructCase'
-    value: 'CamelCase'
-  - key: 'readability-identifier-naming.TemplateParameterCase'
-    value: 'CamelCase'
-  - key: 'readability-identifier-naming.VariableCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.ClassMemberCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.PrivateMemberSuffix'
-    value: '_'
-  - key: 'readability-identifier-naming.ProtectedMemberSuffix'
-    value: '_'
-  - key: 'readability-identifier-naming.EnumConstantCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.ConstexprVariableCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.GlobalConstantCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.MemberConstantCase'
-    value: 'camelBack'
-  - key: 'readability-identifier-naming.StaticConstantCase'
-    value: 'camelBack'
   - key: 'readability-identifier-length.IgnoredVariableNames'
     value: '(_|i|ty|fn|bb|ch)'
   - key: 'readability-identifier-length.IgnoredParameterNames'
     value: '(i|ty|fn|bb|ch)'
-  - key: 'readability-identifier-naming.TypeTemplateParameterIgnoredRegexp'
-    value: 'expr-type'

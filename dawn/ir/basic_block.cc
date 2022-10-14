@@ -15,6 +15,7 @@
 //======---------------------------------------------------------------======//
 
 #include "dawn/ir/basic_block.h"
+#include "dawn/ir/instructions.h"
 
 namespace dawn {
   void BasicBlock::prepend(Instruction* inst) noexcept {
@@ -25,17 +26,17 @@ namespace dawn {
     instructions_.push_back(inst);
   }
 
-  void BasicBlock::insertBefore(const Instruction* before, Instruction* to_insert) noexcept {
+  void BasicBlock::insertBefore(const Instruction* before, Instruction* toInsert) noexcept {
     // NOLINTNEXTLINE(readability-qualified-auto)
     auto it = std::find(instructions_.begin(), instructions_.end(), before);
 
-    instructions_.insert(it, to_insert);
+    instructions_.insert(it, toInsert);
   }
 
-  void BasicBlock::insertAfter(const Instruction* after, Instruction* to_insert) noexcept {
+  void BasicBlock::insertAfter(const Instruction* after, Instruction* toInsert) noexcept {
     // NOLINTNEXTLINE(readability-qualified-auto)
     auto it = std::find(instructions_.begin(), instructions_.end(), after);
 
-    instructions_.insert(it + 1, to_insert);
+    instructions_.insert(it + 1, toInsert);
   }
 } // namespace dawn

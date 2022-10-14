@@ -25,17 +25,20 @@ func f64 @sin(f64 $0) {
 %if.true:
     ret f64 $0
 
+%if.true:
+    ret i32 $0
+
 %if.false:
     unreachable
 }
 
 func f32 @f(f32 $0) {
 %entry:
-    br %
+    br %a
 
-%:
+%a:
     unreachable
 
-%:
+%b:
     unreachable
 }

@@ -16,37 +16,40 @@ include(cmake/target-config.cmake)
 
 # ---- Declare library ----
 
-set(ABSL_USE_SYSTEM_INCLUDES ON)
-set(ABSL_PROPAGATE_CXX_STD ON)
-add_subdirectory(vendor/abseil-cpp)
-
 add_dawn_library(dawn_dawn
         ALIAS dawn::dawn
         EXPORT_NAME dawn
         DEPENDS absl::hash absl::strings absl::str_format absl::flat_hash_map
-        INCLUDES
-        "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>"
-        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
+        INCLUDES "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/>" "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
         FILES
         ./dawn/ir/module.cc
         ./dawn/ir/types.cc
-        ./dawn/utility/assertions.cc
-        ./dawn/utility/apint.cc
         ./dawn/ir/instructions.cc
         ./dawn/ir/instructions.cc
         ./dawn/ir/instruction.cc
         ./dawn/ir/basic_block.cc
         ./dawn/ir/ir_builder.cc
         ./dawn/ir/function.cc
+        ./dawn/ir/constant.cc
+        ./dawn/ir/ir_writer.cc
+        ./dawn/ir/ir_reader.cc
+        ./dawn/ir/inst_visitor.cc
         ./dawn/ir/internal/type_manager.cc
         ./dawn/ir/internal/function_manager.cc
         ./dawn/ir/internal/instruction_manager.cc
-        ./dawn/ir/constant.cc
+        ./dawn/ir/internal/string_pool.cc
         ./dawn/ir/internal/constant_pool.cc
-        ./dawn/ir/ir_writer.cc
-        ./dawn/ir/ir_reader.cc
         ./dawn/utility/file.cc
-        ./dawn/analysis/cfg_edges.cc)
+        ./dawn/utility/assertions.cc
+        ./dawn/utility/apint.cc
+        ./dawn/utility/version.cc
+        ./dawn/analysis/cfg_analysis.cc
+        ./dawn/analysis/analysis_passes.cc
+        ./dawn/analysis/analysis_manager.cc
+        ./dawn/passes/pass.cc
+        ./dawn/vm/vm.cc
+        ./dawn/vm/interpret.cc
+        ./dawn/vm/stack.cc)
 
 include(GenerateExportHeader)
 generate_export_header(
@@ -71,6 +74,11 @@ set_target_properties(
 )
 
 add_subdirectory(tools)
+
+set(ABSL_USE_SYSTEM_INCLUDES ON)
+set(ABSL_PROPAGATE_CXX_STD ON)
+set(ABSL_BUILD_TESTING OFF)
+add_subdirectory(vendor/abseil-cpp)
 
 # ---- Developer mode ----
 

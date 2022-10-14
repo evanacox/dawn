@@ -50,6 +50,7 @@ TEST(DawnIRInstructions, PhiIncomingAddSorts) {
   builder.setInsertFn(fn);
 
   auto* one = builder.createBlock();
+
   auto* two = builder.createBlock();
   auto* three = builder.createBlock();
 

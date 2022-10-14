@@ -27,7 +27,8 @@ int main(int argc, char** argv) {
 
   auto args = std::array{mod.i32(), mod.ptr()};
   auto* main = builder.createFunc("main", mod.i32(), std::span{args.data(), args.size()});
-  auto* entry = builder.createBlock(main);
+  builder.setInsertFn(main);
+  auto* entry = builder.createBlock();
   builder.setInsertPoint(entry);
   auto* add = builder.createCall(other, {builder.constNull()});
   auto* sub = builder.createISub(add, builder.constI32(4));

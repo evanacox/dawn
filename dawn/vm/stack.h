@@ -14,16 +14,25 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "benchmark/benchmark.h"
+#pragma once
 
-namespace {
-  void sanity(benchmark::State& state) noexcept {
-    for (auto _ : state) {
-      // ...
-    }
-  }
-} // namespace
+#include <cstddef>
+#include <memory>
+#include <stack>
+#include <vector>
 
-BENCHMARK(sanity);
+namespace dawn {
+  class Stack {
+  public:
+    void enterFrame() noexcept;
 
-BENCHMARK_MAIN();
+    void leaveFrame() noexcept;
+
+    [[nodiscard]] std::byte* alloc(std::size_t bytes) noexcept;
+
+  private:
+    using Chunk = std::array<unsigned char, 4096>;
+
+    std::vector<std::unique_ptr<Chunk>> storage_;
+  };
+} // namespace dawn

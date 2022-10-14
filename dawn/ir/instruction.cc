@@ -25,7 +25,7 @@ namespace dawn {
     return std::find(operands_.begin(), operands_.end(), value) != operands_.end();
   }
 
-  void Instruction::replaceOperandWith(const Value* old_operand, ReplaceWith<Value*> new_operand) noexcept {
-    std::replace(operands_.begin(), operands_.end(), const_cast<Value*>(old_operand), new_operand.value);
+  void Instruction::replaceOperandWith(const Value* oldOperand, ReplaceWith<Value*> newOperand) noexcept {
+    std::replace(operands_.begin(), operands_.end(), const_cast<Value*>(oldOperand), newOperand.value);
   }
 } // namespace dawn

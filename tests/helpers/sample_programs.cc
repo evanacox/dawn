@@ -14,17 +14,32 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "dawn/analysis/cfg_edges.h"
+#include "./sample_programs.h"
+#include <iostream>
 
 namespace dawn {
-  CfgBlockEdges::CfgBlockEdges(absl::flat_hash_map<const BasicBlock*, internal::EdgeStorage> successors,
-      absl::flat_hash_map<const BasicBlock*, internal::EdgeStorage> predecessors) noexcept
-      : successors_{std::move(successors)},
-        predecessors_{std::move(predecessors)} {}
+  std::pair<std::unique_ptr<dawn::Module>, dawn::IRBuilder> tests::generateTestModule() noexcept {
+    auto module = std::make_unique<dawn::Module>();
+    auto builder = dawn::IRBuilder{module.get()};
+    auto* main = builder.createFunc("main", builder.i32Ty());
+    builder.setInsertFn(main);
+
+    return {std::move(module), builder};
+  }
+
+  std::unique_ptr<dawn::Module> tests::sampleIfElse() noexcept {
+    return tryParseIR(sampleCfgIfElse, &std::cerr).value(); // NOLINT
+  }
+
+  std::unique_ptr<dawn::Module> tests::sampleLoop() noexcept {
+    return tryParseIR(sampleCfgLoop, &std::cerr).value(); // NOLINT
+  }
+
+  std::unique_ptr<dawn::Module> tests::sampleIrreducible() noexcept {
+    return tryParseIR(sampleCfgIrreducible, &std::cerr).value(); // NOLINT
+  }
+
+  std::unique_ptr<dawn::Module> tests::sampleInfinite() noexcept {
+    return tryParseIR(sampleCfgInfinite, &std::cerr).value(); // NOLINT
+  }
 } // namespace dawn
-
-dawn::CfgBlockEdges dawn::calculateCfgEdges(const Function* fn) noexcept {
-  (void)fn;
-
-  DAWN_UNREACHABLE("todo");
-}

@@ -14,16 +14,26 @@
 // limitations under the License.                                            //
 //======---------------------------------------------------------------======//
 
-#include "benchmark/benchmark.h"
+#pragma once
 
-namespace {
-  void sanity(benchmark::State& state) noexcept {
-    for (auto _ : state) {
-      // ...
-    }
-  }
-} // namespace
+#include "../analysis/analyses.h"
+#include "../analysis/analysis_manager.h"
+#include "../config.h"
+#include "../ir/function.h"
+#include "../ir/module.h"
 
-BENCHMARK(sanity);
+namespace dawn {
+  class DAWN_PUBLIC Pass {
+  public:
+    virtual ~Pass() = default;
 
-BENCHMARK_MAIN();
+    virtual void run(Module* mod, AnalysisManager* manager) noexcept = 0;
+  };
+
+  class DAWN_PUBLIC FunctionPass : public Pass {
+  public:
+    void run(Module* mod, AnalysisManager* manager) noexcept override;
+
+    virtual void run(Function* fn, AnalysisManager* manager) noexcept = 0;
+  };
+} // namespace dawn

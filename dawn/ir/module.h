@@ -21,6 +21,7 @@
 #include "./internal/constant_pool.h"
 #include "./internal/function_manager.h"
 #include "./internal/instruction_manager.h"
+#include "./internal/string_pool.h"
 #include "./internal/type_manager.h"
 
 namespace dawn {
@@ -124,8 +125,6 @@ namespace dawn {
       return internal::FunctionRange(&fns_);
     }
 
-    friend bool deepEquals(const Module& lhs, const Module& rhs) noexcept;
-
   private:
     friend class IRBuilder;
 
@@ -134,13 +133,6 @@ namespace dawn {
     internal::FunctionManager fns_;
     internal::InstructionManager instructions_;
     internal::ConstantPool constants_;
+    internal::StringPool strs_;
   };
-
-  /// Checks that two modules are *equivalent* (not binary equal, key distinction)
-  /// to each-other.
-  ///
-  /// \param lhs
-  /// \param rhs
-  /// \return
-  bool deepEquals(const Module& lhs, const Module& rhs) noexcept;
 } // namespace dawn
