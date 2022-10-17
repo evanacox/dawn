@@ -35,7 +35,8 @@ add_dawn_executable(dawn_unittests
         ../dawn/utility/apint.test.cc
         ../dawn/adt/deep_hash_table.test.cc
         ../dawn/ir/module.test.cc
-        ../dawn/analysis/cfg_analysis.test.cc)
+        ../dawn/analysis/cfg_analysis.test.cc
+        ../dawn/ir/constant.test.cc)
 
 include(GoogleTest)
 gtest_discover_tests(dawn_unittests)

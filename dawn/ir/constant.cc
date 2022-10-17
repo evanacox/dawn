@@ -20,6 +20,21 @@
 #include <typeindex>
 #include <typeinfo>
 
+namespace {
+  absl::InlinedVector<dawn::Constant*, 3> intoConstants(dawn::Module* mod, std::string_view content) noexcept {
+    absl::InlinedVector<dawn::Constant*, 3> chars;
+    auto builder = dawn::IRBuilder{mod};
+
+    chars.reserve(content.size());
+
+    for (auto ch : content) {
+      chars.push_back(builder.constI8(static_cast<std::uint8_t>(ch)));
+    }
+
+    return chars;
+  }
+} // namespace
+
 namespace dawn {
   void ConstantInt::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(ConstantInt)}, type(), value_);
@@ -59,33 +74,6 @@ namespace dawn {
     return true;
   }
 
-  ConstantArray::ConstantArray(class Module* mod, std::span<Constant* const> values) noexcept
-      : Constant(this, mod->array(values[0]->type(), values.size()), false) {
-    auto haveSameTy = [first = values[0]](const Constant* val) {
-      return val->type() == first->type();
-    };
-
-    DAWN_ASSERT(!values.empty(), "cannot create empty array literal");
-    DAWN_ASSERT(std::all_of(values.begin(), values.end(), haveSameTy),
-        "all array literal elements must have the same type!");
-  }
-
-  void ConstantArray::hash(absl::HashState state) const noexcept {
-    auto values = this->values();
-
-    state = absl::HashState::combine(std::move(state), std::type_index{typeid(ConstantArray)}, type());
-
-    absl::HashState::combine_contiguous(std::move(state), values.data(), values.size());
-  }
-
-  bool ConstantArray::equals(const Value* val) const noexcept {
-    const auto* other = dyncastUnchecked<const ConstantArray>(val);
-    auto otherVals = other->values();
-    auto selfVals = values();
-
-    return type() == other->type() && std::equal(selfVals.begin(), selfVals.end(), otherVals.begin(), otherVals.end());
-  }
-
   void ConstantStruct::hash(absl::HashState state) const noexcept {
     auto values = this->values();
 
@@ -110,16 +98,9 @@ namespace dawn {
     return type() == val->type();
   }
 
-  ConstantString::ConstantString(class Module* mod, std::string content) noexcept
-      : Constant(this, mod->array(mod->i8(), content.size()), false),
-        real_{std::move(content)} {
-    chars_.reserve(real_.size());
-    auto builder = dawn::IRBuilder{mod};
-
-    for (auto ch : real_) {
-      chars_.push_back(builder.constI8(static_cast<std::uint8_t>(ch)));
-    }
-  }
+  ConstantString::ConstantString(Module* mod, std::string content) noexcept
+      : ConstantArray(this, mod->array(mod->i8(), content.size()), false, intoConstants(mod, content)),
+        real_{std::move(content)} {}
 
   void ConstantString::hash(absl::HashState state) const noexcept {
     auto values = asValues();
@@ -133,5 +114,32 @@ namespace dawn {
     const auto* other = dyncastUnchecked<const ConstantString>(val);
 
     return stringData() == other->stringData();
+  }
+
+  ConstantValArray::ConstantValArray(class Module* mod, std::span<Constant* const> values) noexcept
+      : ConstantArray(this, mod->array(values[0]->type(), values.size()), false, values) {
+    auto haveSameTy = [first = values[0]](const Constant* val) {
+      return val->type() == first->type();
+    };
+
+    DAWN_ASSERT(!values.empty(), "cannot create empty array literal");
+    DAWN_ASSERT(std::all_of(values.begin(), values.end(), haveSameTy),
+        "all array literal elements must have the same type!");
+  }
+
+  void ConstantValArray::hash(absl::HashState state) const noexcept {
+    auto values = this->values();
+
+    state = absl::HashState::combine(std::move(state), std::type_index{typeid(ConstantArray)}, type());
+
+    absl::HashState::combine_contiguous(std::move(state), values.data(), values.size());
+  }
+
+  bool ConstantValArray::equals(const Value* val) const noexcept {
+    const auto* other = dyncastUnchecked<const ConstantArray>(val);
+    auto otherVals = other->values();
+    auto selfVals = values();
+
+    return type() == other->type() && std::equal(selfVals.begin(), selfVals.end(), otherVals.begin(), otherVals.end());
   }
 } // namespace dawn
