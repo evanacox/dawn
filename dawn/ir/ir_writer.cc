@@ -319,6 +319,13 @@ namespace dawn {
     dumpRefValue(inst->rhs(), buffer);                                                                                 \
   } while (false)
 
+#define UNARY_INST(ty, name)                                                                                           \
+  do {                                                                                                                 \
+    const auto* inst = dyncastUnchecked<const ty>(val);                                                                \
+    absl::StrAppend(buffer, (name), " ");                                                                              \
+    dumpTyRef(inst->operand(), buffer);                                                                                \
+  } while (false)
+
       case ValueKind::andInst: BINARY_INST(And, "and"); break; // NOLINT
       case ValueKind::orInst: BINARY_INST(Or, "or"); break;
       case ValueKind::xorInst: BINARY_INST(Xor, "xor"); break;
@@ -332,7 +339,7 @@ namespace dawn {
       case ValueKind::sdivInst: BINARY_INST(SDiv, "sdiv"); break;
       case ValueKind::uremInst: BINARY_INST(URem, "urem"); break;
       case ValueKind::sremInst: BINARY_INST(SRem, "srem"); break;
-      case ValueKind::fnegInst: BINARY_INST(FNeg, "fneg"); break;
+      case ValueKind::fnegInst: UNARY_INST(FNeg, "fneg"); break;
       case ValueKind::faddInst: BINARY_INST(FAdd, "fadd"); break;
       case ValueKind::fsubInst: BINARY_INST(FSub, "fsub"); break;
       case ValueKind::fmulInst: BINARY_INST(FMul, "fmul"); break;
