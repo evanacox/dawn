@@ -48,8 +48,7 @@ jobs:
     # edit the "<name>" placeholder to your GitHub name.
     # If you do not wish to use codecov, then simply delete this job from the
     # workflow.
-    if: github.repository_owner == '<name>'
-      && false
+    if: github.repository_owner == 'evanacox'
 
     steps:
       - uses: actions/checkout@v2
@@ -68,7 +67,7 @@ jobs:
 
       - name: Test
         working-directory: build/coverage
-        run: ./tests/dawn_test
+        run: ctest
 
       - name: Process coverage info
         run: cmake --build build/coverage -t coverage
@@ -172,7 +171,7 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ctest 
+        run: ctest
 
   docs:
     # Deploy docs only when builds succeed
