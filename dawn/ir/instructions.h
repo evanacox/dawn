@@ -962,13 +962,12 @@ namespace dawn {
     bool equals(const Value* val) const noexcept final;
   };
 
-  class DAWN_PUBLIC FNeg final : public BinaryInst {
+  class DAWN_PUBLIC FNeg final : public UnaryInst {
   public:
     inline constexpr static ValueKind kind = ValueKind::fnegInst;
 
-    explicit FNeg(Value* lhs, Value* rhs) noexcept : BinaryInst(this, lhs->type(), lhs, rhs) {
-      DAWN_ASSERT(lhs->type() == rhs->type(), "`lhs` and `rhs` for `fneg` must have the same type");
-      DAWN_ASSERT(isa<Float>(lhs->type()), "`fneg` operands must be floating-point!");
+    explicit FNeg(Value* operand) noexcept : UnaryInst(this, operand->type(), operand) {
+      DAWN_ASSERT(isa<Float>(operand->type()), "`fneg` operand must be floating-point!");
     }
 
   protected:
@@ -1086,12 +1085,15 @@ namespace dawn {
   MACRO(SDiv)                                                                                                          \
   MACRO(URem)                                                                                                          \
   MACRO(SRem)                                                                                                          \
-  MACRO(FNeg)                                                                                                          \
   MACRO(FAdd)                                                                                                          \
   MACRO(FSub)                                                                                                          \
   MACRO(FMul)                                                                                                          \
   MACRO(FDiv)                                                                                                          \
   MACRO(FRem)
+
+#define DAWN_FOR_EACH_UNARY_INST(MACRO)                                                                                \
+  DAWN_FOR_EACH_CONVERSION_INST(MACRO)                                                                                 \
+  MACRO(FNeg)
 
 #define DAWN_FOR_EACH_MISC_INST(MACRO)                                                                                 \
   MACRO(Phi)                                                                                                           \

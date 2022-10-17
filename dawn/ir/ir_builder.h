@@ -561,8 +561,8 @@ namespace dawn {
       return createRawInstruction<SRem>(lhs, rhs);
     }
 
-    FNeg* createFNeg(Value* lhs, Value* rhs) noexcept {
-      return createRawInstruction<FNeg>(lhs, rhs);
+    FNeg* createFNeg(Value* operand) noexcept {
+      return createRawInstruction<FNeg>(operand);
     }
 
     FAdd* createFAdd(Value* lhs, Value* rhs) noexcept {

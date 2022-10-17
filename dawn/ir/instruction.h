@@ -139,7 +139,25 @@ namespace dawn {
     absl::InlinedVector<BasicBlock*, 2> references_;
   };
 
-  class DAWN_PUBLIC ConversionInst : public Instruction {
+  class DAWN_PUBLIC UnaryInst : public Instruction {
+  public:
+    [[nodiscard]] static bool instanceOf(const Value* val) {
+      return val->kind() >= ValueKind::unaryInstBegin && val->kind() <= ValueKind::unaryInstEnd;
+    }
+
+    [[nodiscard]] const Value* operand() const noexcept {
+      return this->operands()[0];
+    }
+
+    [[nodiscard]] Value* operand() noexcept {
+      return this->operands()[0];
+    }
+
+  protected:
+    template <typename T> UnaryInst(T* ptr, Type* ty, Value* lhs) noexcept : Instruction(ptr, ty, {lhs}) {}
+  };
+
+  class DAWN_PUBLIC ConversionInst : public UnaryInst {
   public:
     [[nodiscard]] static bool instanceOf(const Value* val) {
       return val->kind() >= ValueKind::conversionInstBegin && val->kind() <= ValueKind::conversionInstEnd;
@@ -154,14 +172,14 @@ namespace dawn {
     }
 
     [[nodiscard]] const Value* from() const noexcept {
-      return this->operands()[0];
+      return operand();
     }
 
     [[nodiscard]] Value* from() noexcept {
-      return this->operands()[0];
+      return operand();
     }
 
   protected:
-    template <typename T> ConversionInst(T* ptr, Type* ty, Value* lhs) noexcept : Instruction(ptr, ty, {lhs}) {}
+    template <typename T> ConversionInst(T* ptr, Type* ty, Value* lhs) noexcept : UnaryInst(ptr, ty, lhs) {}
   };
 } // namespace dawn

@@ -1010,10 +1010,10 @@ TEST(DawnIRInstructions, FNegImplementsValue) {
   builder.setInsertPoint(entry);
 
   dawn::tests::implementsValueInterface({
-      builder.createFNeg(builder.constF32(0.0), builder.constF32(0.0)),
-      builder.createFNeg(builder.constF32(0.0), builder.constF32(1.0)),
-      builder.createFNeg(builder.constF64(0.0), builder.constF64(0)),
-      builder.createFNeg(builder.constF64(1.0), builder.constF64(1.0)),
+      builder.createFNeg(builder.constF32(0.0)),
+      builder.createFNeg(builder.constF32(0.0)),
+      builder.createFNeg(builder.constF64(0.0)),
+      builder.createFNeg(builder.constF64(1.0)),
   });
 }
 
