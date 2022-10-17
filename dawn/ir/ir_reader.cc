@@ -1467,7 +1467,10 @@ namespace {
       case Tok::keywordOle:
       case Tok::keywordUeq:
       case Tok::keywordUne: return lookup.at(ty);
+      default: break;
     }
+
+    DAWN_UNREACHABLE("no tokens should not match the switch");
   }
 
   // here to be called while debugging
