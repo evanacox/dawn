@@ -37,8 +37,6 @@ function(add_dawn_library)
 
     set_target_properties(
             ${ARGV0} PROPERTIES
-            CXX_VISIBILITY_PRESET hidden
-            VISIBILITY_INLINES_HIDDEN YES
             VERSION "${PROJECT_VERSION}"
             SOVERSION "${PROJECT_VERSION_MAJOR}"
             EXPORT_NAME ${ADD_DAWN_LIBRARY_EXPORT_NAME}
