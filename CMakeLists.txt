@@ -65,8 +65,6 @@ endif ()
 
 set_target_properties(
         dawn_dawn PROPERTIES
-        CXX_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN YES
         VERSION "${PROJECT_VERSION}"
         SOVERSION "${PROJECT_VERSION_MAJOR}"
         EXPORT_NAME dawn
