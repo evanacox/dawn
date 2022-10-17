@@ -41,7 +41,7 @@ namespace dawn {
     return currBlock_->instructions().back();
   }
 
-  ConstantArray* IRBuilder::constArrayFill(Constant* val, std::size_t length) noexcept {
+  ConstantValArray* IRBuilder::constArrayFill(Constant* val, std::size_t length) noexcept {
     auto vec = absl::InlinedVector<Constant*, 128>{length, val};
 
     return constArray(vec);
