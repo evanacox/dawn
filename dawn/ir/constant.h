@@ -117,25 +117,6 @@ namespace dawn {
     bool equals(const Value* val) const noexcept final;
   };
 
-  class DAWN_PUBLIC ConstantArray final : public Constant {
-  public:
-    inline constexpr static ValueKind kind = ValueKind::constArray;
-
-    explicit ConstantArray(class Module* mod, std::span<Constant* const> values) noexcept;
-
-    [[nodiscard]] std::span<Constant* const> values() const noexcept {
-      return values_;
-    }
-
-  protected:
-    void hash(absl::HashState state) const noexcept final;
-
-    bool equals(const Value* val) const noexcept final;
-
-  private:
-    absl::InlinedVector<Constant*, 3> values_; // 4 makes `ConstantArray` more than 64 bytes per object, unacceptable
-  };
-
   class DAWN_PUBLIC ConstantStruct final : public Constant {
   public:
     inline constexpr static ValueKind kind = ValueKind::constStruct;
@@ -182,7 +163,32 @@ namespace dawn {
     bool equals(const Value* val) const noexcept final;
   };
 
-  class DAWN_PUBLIC ConstantString final : public Constant {
+  class DAWN_PUBLIC ConstantArray : public Constant {
+  public:
+    [[nodiscard]] static bool instanceOf(const Value* val) {
+      return val->kind() >= ValueKind::constArrayBegin || val->kind() <= ValueKind::constArrayEnd;
+    }
+
+    [[nodiscard]] std::span<Constant* const> values() const noexcept {
+      return values_;
+    }
+
+  protected:
+    template <typename T>
+    explicit ConstantArray(T* ptr, Type* ty, bool nullish, absl::InlinedVector<Constant*, 3> values) noexcept
+        : Constant(ptr, ty, nullish),
+          values_{std::move(values)} {}
+
+    template <typename T>
+    explicit ConstantArray(T* ptr, Type* ty, bool nullish, std::span<Constant* const> values) noexcept
+        : Constant(ptr, ty, nullish),
+          values_{values.begin(), values.end()} {}
+
+  private:
+    absl::InlinedVector<Constant*, 3> values_; // 4 makes `ConstantArray` more than 64 bytes per object, unacceptable
+  };
+
+  class DAWN_PUBLIC ConstantString final : public ConstantArray {
   public:
     inline constexpr static ValueKind kind = ValueKind::constString;
 
@@ -193,7 +199,10 @@ namespace dawn {
     }
 
     [[nodiscard]] std::span<ConstantInt* const> asValues() const noexcept {
-      return chars_;
+      auto arr = ConstantArray::values();
+
+      // we know that they are all integers
+      return {reinterpret_cast<ConstantInt* const*>(arr.data()), arr.size()};
     }
 
   protected:
@@ -202,10 +211,18 @@ namespace dawn {
     bool equals(const Value* val) const noexcept final;
 
   private:
-    // no reason to try to sso this, basically every string is larger than we can
-    // reasonably fit in 8-byte per char sso. the struct is also already above the size
-    // of one cache line, so at this point it doesn't matter
-    std::vector<ConstantInt*> chars_;
     std::string real_;
+  };
+
+  class DAWN_PUBLIC ConstantValArray final : public ConstantArray {
+  public:
+    inline constexpr static ValueKind kind = ValueKind::constArray;
+
+    explicit ConstantValArray(class Module* mod, std::span<Constant* const> values) noexcept;
+
+  protected:
+    void hash(absl::HashState state) const noexcept final;
+
+    bool equals(const Value* val) const noexcept final;
   };
 } // namespace dawn

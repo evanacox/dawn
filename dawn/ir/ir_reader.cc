@@ -838,6 +838,11 @@ namespace {
     value = parseSimpleBinary<dawn::ty, dawn::Float>("floating-point", &dawn::IRBuilder::create##ty);                  \
   } while (false)
 
+#define DAWN_PARSE_FLOAT_UNARY(ty)                                                                                     \
+  do {                                                                                                                 \
+    value = parseSimpleUnary<dawn::ty, dawn::Float>("floating-point", &dawn::IRBuilder::create##ty);                   \
+  } while (false)
+
 #define DAWN_PARSE_CONVERSION(name, message, ...)                                                                      \
   do {                                                                                                                 \
     using T = decltype(std::declval<dawn::IRBuilder>().create##name(std::declval<dawn::Type*>(),                       \
@@ -872,7 +877,7 @@ namespace {
         case Tok::keywordSDiv: DAWN_PARSE_INT_BINOP(SDiv); break;
         case Tok::keywordURem: DAWN_PARSE_INT_BINOP(URem); break;
         case Tok::keywordSRem: DAWN_PARSE_INT_BINOP(SRem); break;
-        case Tok::keywordFNeg: DAWN_PARSE_FLOAT_BINOP(FNeg); break;
+        case Tok::keywordFNeg: DAWN_PARSE_FLOAT_UNARY(FNeg); break;
         case Tok::keywordFAdd: DAWN_PARSE_FLOAT_BINOP(FAdd); break;
         case Tok::keywordFSub: DAWN_PARSE_FLOAT_BINOP(FSub); break;
         case Tok::keywordFMul: DAWN_PARSE_FLOAT_BINOP(FMul); break;
@@ -908,9 +913,34 @@ namespace {
 
     template <typename T> using IRBuilderBinaryCreateMethod = T* (dawn::IRBuilder::*)(dawn::Value*, dawn::Value*);
 
+    template <typename T> using IRBuilderUnaryCreateMethod = T* (dawn::IRBuilder::*)(dawn::Value*);
+
+    template <typename T, typename... Ts>
+    [[nodiscard]] T* parseSimpleUnary(std::string_view expectedTys, IRBuilderUnaryCreateMethod<T> method) {
+      auto [_, val] = parseTyValPair();
+
+      if (!(dawn::isa<Ts>(val->type()) || ...)) {
+        parseError("expected operand type to be ",
+            expectedTys,
+            " but got '",
+            dawn::stringifySingleTy(*mod_, val->type()),
+            "'");
+      }
+
+      return (ib_.*method)(val);
+    }
+
     template <typename T, typename... Ts>
     [[nodiscard]] T* parseSimpleBinary(std::string_view expectedTys, IRBuilderBinaryCreateMethod<T> method) {
       auto [lhs, rhs] = parseBinopOperands();
+
+      if (lhs->type() != rhs->type()) {
+        parseError("expected operands to be of same type, but lhs is '",
+            dawn::stringifySingleTy(*mod_, lhs->type()),
+            "' and rhs is '",
+            dawn::stringifySingleTy(*mod_, rhs->type()),
+            "'");
+      }
 
       if (!(dawn::isa<Ts>(lhs->type()) || ...)) {
         parseError("expected operand type to be ",

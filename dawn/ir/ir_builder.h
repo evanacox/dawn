@@ -245,15 +245,15 @@ namespace dawn {
       return mod_->constants_.createOrGet<ConstantUndef>(&mod_->pool_, ofTy);
     }
 
-    [[nodiscard]] ConstantArray* constArray(std::span<Constant* const> vals) noexcept {
-      return mod_->constants_.createOrGet<ConstantArray>(&mod_->pool_, mod_, vals);
+    [[nodiscard]] ConstantValArray* constArray(std::span<Constant* const> vals) noexcept {
+      return mod_->constants_.createOrGet<ConstantValArray>(&mod_->pool_, mod_, vals);
     }
 
-    [[nodiscard]] ConstantArray* constArray(std::initializer_list<Constant*> vals) noexcept {
+    [[nodiscard]] ConstantValArray* constArray(std::initializer_list<Constant*> vals) noexcept {
       return constArray({vals.begin(), vals.size()});
     }
 
-    [[nodiscard]] ConstantArray* constArrayFill(Constant* val, std::size_t length) noexcept;
+    [[nodiscard]] ConstantValArray* constArrayFill(Constant* val, std::size_t length) noexcept;
 
     [[nodiscard]] ConstantStruct* constStruct(std::span<Constant* const> vals) noexcept;
 
@@ -561,8 +561,8 @@ namespace dawn {
       return createRawInstruction<SRem>(lhs, rhs);
     }
 
-    FNeg* createFNeg(Value* lhs, Value* rhs) noexcept {
-      return createRawInstruction<FNeg>(lhs, rhs);
+    FNeg* createFNeg(Value* operand) noexcept {
+      return createRawInstruction<FNeg>(operand);
     }
 
     FAdd* createFAdd(Value* lhs, Value* rhs) noexcept {

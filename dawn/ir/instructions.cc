@@ -150,7 +150,7 @@ namespace dawn {
 
   DAWN_FOR_EACH_BINARY_INST(BINARY_INST_IMPL)
 
-#define CONVERSION_INST_IMPL(Ty)                                                                                       \
+#define UNARY_INST_IMPL(Ty)                                                                                            \
   void Ty::hash(absl::HashState state) const noexcept {                                                                \
     absl::HashState::combine(std::move(state), std::type_index{typeid(Ty)}, type(), operands()[0]);                    \
   }                                                                                                                    \
@@ -159,7 +159,7 @@ namespace dawn {
     return ptr->type() == type() && ptr->operands()[0] == operands()[0];                                               \
   }
 
-  DAWN_FOR_EACH_CONVERSION_INST(CONVERSION_INST_IMPL)
+  DAWN_FOR_EACH_UNARY_INST(UNARY_INST_IMPL)
 
   void Offset::hash(absl::HashState state) const noexcept {
     absl::HashState::combine(std::move(state), std::type_index{typeid(Offset)}, offsetTy(), ptr(), offset());
