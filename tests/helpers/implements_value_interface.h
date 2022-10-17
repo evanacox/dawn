@@ -40,14 +40,24 @@ namespace dawn::tests {
       // because if we pass in a span of pointers, it will check that the *pointers*
       // are hashable, not the things pointed to.
       //
-      // every value should be copyable anyway, this implicitly enforces that as well
+      // every value should be copyable anyway, this implicitly enforces that as well.
       auto copy = std::vector<T>{};
 
       for (const auto* val : values) {
+        // we push **two** copies of everything. `absl::VerifyTypeImplementsAbslHaslCorrectly`
+        // asserts that objects that compare as equal have equal hash values. this forces
+        // that to actually be tested
+        copy.push_back(*val);
         copy.push_back(*val);
       }
 
-      EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(copy));
+      // if we only have one valid state for the object (e.g `ConstantNull`) we
+      // need to test it differently.
+      if (values.size() == 1) {
+        EXPECT_EQ(absl::HashOf(copy[0]), absl::HashOf(copy[1]));
+      } else {
+        EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(copy));
+      }
     }
 
 #define DAWN_INTERNAL_IF_DERIVED_EXPECT_ISA(ty)                                                                        \

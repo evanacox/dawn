@@ -55,6 +55,6 @@ CheckOptions:
   - key: 'readability-magic-numbers.IgnorePowersOf2IntegerValues'
     value: 1
   - key: 'readability-identifier-length.IgnoredVariableNames'
-    value: '(_|i|ty|fn|bb|ch)'
+    value: '(_|i|ty|fn|bb|ch|am)'
   - key: 'readability-identifier-length.IgnoredParameterNames'
-    value: '(i|ty|fn|bb|ch)'
+    value: '(i|ty|fn|bb|ch|am)'

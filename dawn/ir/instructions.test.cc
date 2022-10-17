@@ -1011,7 +1011,7 @@ TEST(DawnIRInstructions, FNegImplementsValue) {
 
   dawn::tests::implementsValueInterface({
       builder.createFNeg(builder.constF32(0.0)),
-      builder.createFNeg(builder.constF32(0.0)),
+      builder.createFNeg(builder.constF32(1.0)),
       builder.createFNeg(builder.constF64(0.0)),
       builder.createFNeg(builder.constF64(1.0)),
   });
