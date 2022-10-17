@@ -60,6 +60,7 @@ jobs:
           && sudo apt-get install lcov -q -y
 
       - name: Configure
+        env: { CXX: g++-10 }
         run: cmake --preset=ci-coverage
 
       - name: Build
