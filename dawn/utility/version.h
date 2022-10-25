@@ -15,3 +15,11 @@
 //======---------------------------------------------------------------======//
 
 #pragma once
+
+namespace dawn {
+  struct Version {
+    int major, minor, patch;
+  };
+
+  [[nodiscard]] Version version() noexcept;
+} // namespace dawn

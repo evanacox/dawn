@@ -14,6 +14,11 @@ include(cmake/project-is-top-level.cmake)
 include(cmake/variables.cmake)
 include(cmake/target-config.cmake)
 
+set(ABSL_USE_SYSTEM_INCLUDES ON)
+set(ABSL_PROPAGATE_CXX_STD ON)
+set(ABSL_BUILD_TESTING OFF)
+add_subdirectory(vendor/abseil-cpp)
+
 # ---- Declare library ----
 
 add_dawn_library(dawn_dawn
@@ -71,12 +76,12 @@ set_target_properties(
         OUTPUT_NAME dawn
 )
 
-add_subdirectory(tools)
+set(DAWN_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(DAWN_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(DAWN_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+configure_file(./dawn/version_config.h.in "${PROJECT_BINARY_DIR}/export/dawn/version_config.h")
 
-set(ABSL_USE_SYSTEM_INCLUDES ON)
-set(ABSL_PROPAGATE_CXX_STD ON)
-set(ABSL_BUILD_TESTING OFF)
-add_subdirectory(vendor/abseil-cpp)
+add_subdirectory(tools)
 
 # ---- Developer mode ----
 
